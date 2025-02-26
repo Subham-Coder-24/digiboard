@@ -20,13 +20,16 @@ nextApp.prepare().then(async () => {
 	});
 
 	io.on("connection", (socket) => {
-		console.log("User connected");
-		socket.on("draw", (moves) => {
+		console.log(`User connected: ${socket.id}`);
+		socket.on("draw", (moves, options) => {
 			console.log("drawing");
-			// socket.broadcast.emit("user_draw", moves);
+			// console.log(moves);
+			// console.log(options);
+
+			socket.broadcast.emit("socket_draw", moves, options);
 		});
 		socket.on("disconnect", () => {
-			console.log("User disconnected");
+			console.log(`User disconnected: ${socket.id}`);
 		});
 	});
 
