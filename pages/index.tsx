@@ -1,114 +1,117 @@
+"use client";
+import { useDraw } from "@/common/hooks/drawing";
+import { socket } from "@/common/lib/socket";
+import Canvas from "@/modules/canvas/comonents/Canvas";
 import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+import { useEffect, useRef, useState } from "react";
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+	// const canvasRef = useRef<HTMLCanvasElement>(null);
+	// const ctxRef = useRef<CanvasRenderingContext2D | undefined>(undefined);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+	// const [size, setSize] = useState({ width: 0, height: 0 });
+	// const [options, setOptions] = useState<CtxOptions>({
+	// 	lineColor: "#000",
+	// 	lineWidth: 5,
+	// });
+
+	// const { handleEndDrawing, handleDraw, handleStartDrawing, drawing } =
+	// 	useDraw(options, ctxRef.current);
+
+	// const drawFromSocket = (
+	// 	socketMoves: [number, number][],
+	// 	socketOptions: CtxOptions
+	// ) => {
+	// 	const tempCtx = ctxRef.current;
+	// 	if (!tempCtx) return;
+
+	// 	tempCtx.lineWidth = socketOptions.lineWidth;
+	// 	tempCtx.strokeStyle = socketOptions.lineColor;
+
+	// 	tempCtx.beginPath();
+	// 	socketMoves.forEach(([x, y]) => {
+	// 		tempCtx.lineTo(x, y);
+	// 		tempCtx.stroke();
+	// 	});
+	// 	tempCtx.closePath();
+	// };
+
+	// useEffect(() => {
+	// 	const handleResize = () => {
+	// 		setSize({ width: window.innerWidth, height: window.innerHeight });
+	// 	};
+
+	// 	window.addEventListener("resize", handleResize);
+	// 	handleResize(); // Call it once to set the initial size
+
+	// 	return () => {
+	// 		window.removeEventListener("resize", handleResize);
+	// 	};
+	// }, []);
+
+	// useEffect(() => {
+	// 	const canvas = canvasRef.current;
+	// 	if (canvas) {
+	// 		const ctx = canvas.getContext("2d");
+	// 		if (ctx) ctxRef.current = ctx;
+	// 	}
+	// }, [options.lineColor, options.lineWidth]);
+
+	// useEffect(() => {
+	// 	let movesToDrawLater: [number, number][] = [];
+	// 	let optionsToUseLater: CtxOptions = { lineColor: "", lineWidth: 0 };
+
+	// 	socket.on(
+	// 		"socket_draw",
+	// 		(movesToDraw: [number, number][], socketOptions: CtxOptions) => {
+	// 			if (ctxRef.current && drawing) {
+	// 				drawFromSocket(movesToDraw, socketOptions);
+	// 			} else {
+	// 				movesToDrawLater = movesToDraw;
+	// 				optionsToUseLater = socketOptions;
+	// 			}
+	// 		}
+	// 	);
+
+	// 	return () => {
+	// 		socket.off("socket_draw");
+	// 		if (movesToDrawLater.length) {
+	// 			drawFromSocket(movesToDrawLater, optionsToUseLater);
+	// 			movesToDrawLater = []; // Clear stored moves after drawing
+	// 		}
+	// 	};
+	// }, [drawing]);
+
+	return (
+		// <div className="flex h-full w-full items-center justify-center">
+		// 	<button
+		// 		onClick={() => setOptions({ lineColor: "blue", lineWidth: 5 })}
+		// 		className="absolute bg-black text-white p-2 rounded"
+		// 	>
+		// 		Blue
+		// 	</button>
+		// 	<canvas
+		// 		className="h-full w-full"
+		// 		ref={canvasRef}
+		// 		width={size.width}
+		// 		height={size.height}
+		// 		onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY)}
+		// 		onMouseUp={handleEndDrawing}
+		// 		onMouseMove={(e) => handleDraw(e.clientX, e.clientY)}
+		// 		onTouchStart={(e) => {
+		// 			handleStartDrawing(
+		// 				e.changedTouches[0].clientX,
+		// 				e.changedTouches[0].clientY
+		// 			);
+		// 		}}
+		// 		onTouchEnd={handleEndDrawing}
+		// 		onTouchMove={(e) => {
+		// 			handleDraw(
+		// 				e.changedTouches[0].clientX,
+		// 				e.changedTouches[0].clientY
+		// 			);
+		// 		}}
+		// 	/>
+		// </div>
+		<Canvas />
+	);
 }
