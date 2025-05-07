@@ -2,16 +2,16 @@ import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewportSize } from "@/common/hooks/useViewportSize";
 import { motion, MotionValue, useMotionValue } from "framer-motion";
 import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
+import { useBoardPosition } from "../hooks/useBoardPosition";
 
 const MiniMap = forwardRef<
 	HTMLCanvasElement,
 	{
-		x: MotionValue<number>;
-		y: MotionValue<number>;
 		dragging: boolean;
 		setMovedMinimap: Dispatch<SetStateAction<boolean>>;
 	}
->(({ x, y, dragging, setMovedMinimap }, ref) => {
+>(({ dragging, setMovedMinimap }, ref) => {
+	const { x, y } = useBoardPosition();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { width, height } = useViewportSize();
 	const miniX = useMotionValue(0);
@@ -55,8 +55,8 @@ const MiniMap = forwardRef<
 				dragConstraints={containerRef}
 				dragElastic={0}
 				dragTransition={{ power: 0, timeConstant: 0 }}
-				// onDragStart={() => setDraggingMinimap(true)}
-				onDragEnd={() => setMovedMinimap((prev: boolean) => !prev)}
+				onDragStart={() => setMovedMinimap(true)}
+				onDragEnd={() => setMovedMinimap(false)}
 				className="absolute top-0 left-0 cursor-grab rounded-lg border-2 border-red-500"
 				style={{
 					width: width / 10,

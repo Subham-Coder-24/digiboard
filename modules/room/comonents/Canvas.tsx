@@ -69,7 +69,8 @@ const Canvas = () => {
 		socket.on(
 			"socket_draw",
 			(movesToDraw: [number, number][], socketOptions: CtxOptions) => {
-				if (ctx && drawing) {
+				if (ctx) {
+					//changed if (ctx && drawing) {
 					drawFromSocket(
 						movesToDraw,
 						socketOptions,
@@ -95,7 +96,7 @@ const Canvas = () => {
 				movesToDrawLater = []; // Clear stored moves after drawing
 			}
 		};
-	}, [drawing]);
+	}, [ctx]); //changed  [drawing]);
 
 	return (
 		<div className="relative h-full w-full overflow-hidden">
@@ -138,8 +139,6 @@ const Canvas = () => {
 			/>
 			<MiniMap
 				ref={smallCanvasRef}
-				x={x}
-				y={y} // Fixed y assignment
 				dragging={dragging}
 				setMovedMinimap={setMovedMiniMap} // Fixed syntax
 			/>

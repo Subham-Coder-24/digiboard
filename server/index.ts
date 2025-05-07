@@ -21,12 +21,19 @@ nextApp.prepare().then(async () => {
 
 	io.on("connection", (socket) => {
 		console.log(` User connected: ${socket.id}`);
+
+		socket.join("global");
+		const allUser = io.sockets.adapter.rooms.get("global");
+		if (allUser) io.to("global").emit("users_in_room", [...allUser]);
+
 		socket.on("draw", (moves, options) => {
 			console.log("drawing");
-			// console.log(moves);
-			// console.log(options);
-
 			socket.broadcast.emit("socket_draw", moves, options);
+		});
+
+		socket.on("mouse_move", (x, y) => {
+			console.log("mouse_move");
+			socket.broadcast.emit("mouse_moved", x, y, socket.id);
 		});
 		socket.on("disconnect", () => {
 			console.log(`User disconnected: ${socket.id}`);
