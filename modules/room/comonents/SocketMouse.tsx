@@ -5,10 +5,10 @@ import { useBoardPosition } from "../hooks/useBoardPosition";
 import { socket } from "@/common/lib/socket";
 
 interface SocketMouseProps {
-	socketId: string;
+	userId: string;
 }
 
-const SocketMouse: React.FC<SocketMouseProps> = ({ socketId }) => {
+const SocketMouse = ({ userId }: { userId: string }) => {
 	const boardPos = useBoardPosition();
 	const [x, setX] = useState(boardPos.x.get());
 	const [y, setY] = useState(boardPos.y.get());
@@ -30,7 +30,7 @@ const SocketMouse: React.FC<SocketMouseProps> = ({ socketId }) => {
 			newY: number,
 			socketIdMoved: string
 		) => {
-			if (socketIdMoved === socketId) {
+			if (socketIdMoved === userId) {
 				setPos({ x: newX, y: newY });
 			}
 		};
@@ -39,7 +39,7 @@ const SocketMouse: React.FC<SocketMouseProps> = ({ socketId }) => {
 		return () => {
 			socket.off("mouse_moved", handleMouseMoved);
 		};
-	}, [socketId]);
+	}, [userId]);
 
 	return (
 		<motion.div

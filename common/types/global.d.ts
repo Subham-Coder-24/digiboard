@@ -9,16 +9,20 @@ export declare global {
 		lineColor: RgbaColor;
 	}
 	interface ServerToClientEvents {
-		socket_draw: (
+		user_draw: (
 			newMoves: [number, number][],
-			options: CtxOptions
+			options: CtxOptions,
+			userId: string
 		) => void;
+		user_undo(userId: string): void;
 		mouse_moved: (x: number, y: number, socketId: string) => void;
 		users_in_room: (socketIds: string[]) => void;
+		user_disconnected: (scokekId: string) => void;
 	}
 
 	interface ClientToServerEvents {
 		mouse_move: (x: number, y: number) => void;
 		draw: (moves: [number, number][], options: CtxOptions) => void;
+		undo: () => void;
 	}
 }
