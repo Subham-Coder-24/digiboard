@@ -11,7 +11,7 @@ import { socket } from "@/common/lib/socket";
 import MiniMap from "./Minimap";
 import { useKeyPressEvent } from "react-use";
 import { useDraw, useSocketDraw } from "../hooks/Canvas.hooks";
-import { drawFromSocket } from "../helpers/Canvas.helpers";
+import { handleMove } from "../helpers/Canvas.helpers";
 import { useBoardPosition } from "../hooks/useBoardPosition";
 
 const Canvas = () => {
@@ -54,7 +54,7 @@ const Canvas = () => {
 		handleEndDrawing,
 		handleStartDrawing,
 		handleUndo,
-		// drawing,
+		drawing,
 	} = useDraw(ctx, dragging, copyCanvasToSmall);
 
 	useEffect(() => {
@@ -73,42 +73,41 @@ const Canvas = () => {
 			window.removeEventListener("keyup", handleKeyUp);
 		};
 	}, [dragging]);
-	useEffect(() => {
-		let movesToDrawLater: [number, number][] = [];
-		let optionsToUseLater: CtxOptions = { lineColor: "", lineWidth: 0 };
+	// useEffect(() => {
+	// 	let movesToDrawLater: [number, number][] = [];
+	// 	let optionsToUseLater: CtxOptions = { lineColor: "", lineWidth: 0 };
 
-		socket.on(
-			"user_draw",
-			(movesToDraw: [number, number][], socketOptions: CtxOptions) => {
-				if (ctx) {
-					//changed if (ctx && drawing) {
-					drawFromSocket(
-						movesToDraw,
-						socketOptions,
-						ctx,
-						copyCanvasToSmall
-					);
-				} else {
-					movesToDrawLater = movesToDraw;
-					optionsToUseLater = socketOptions;
-				}
-			}
-		);
+	// 	socket.on(
+	// 		"user_draw",
+	// 		(move:Move) => {
+	// 			if (ctx) {
+	// 				//changed if (ctx && drawing) {
+	// 				handleMove(
+	// 					move,
+	// 					ctx,
+	// 					// copyCanvasToSmall
+	// 				);
+	// 			} else {
+	// 				movesToDrawLater = movesToDraw;
+	// 				optionsToUseLater = socketOptions;
+	// 			}
+	// 		}
+	// 	);
 
-		return () => {
-			socket.off("user_draw");
-			if (movesToDrawLater.length && ctx) {
-				drawFromSocket(
-					movesToDrawLater,
-					optionsToUseLater,
-					ctx,
-					copyCanvasToSmall
-				);
-				movesToDrawLater = []; // Clear stored moves after drawing
-			}
-		};
-	}, [ctx]); //changed  [drawing]);
-	useSocketDraw(ctx, copyCanvasToSmall);
+	// 	return () => {
+	// 		socket.off("user_draw");
+	// 		if (movesToDrawLater.length && ctx) {
+	// 			drawFromSocket(
+	// 				movesToDrawLater,
+	// 				optionsToUseLater,
+	// 				ctx,
+	// 				copyCanvasToSmall
+	// 			);
+	// 			movesToDrawLater = []; // Clear stored moves after drawing
+	// 		}
+	// 	};
+	// }, [ctx]); //changed  [drawing]);
+	useSocketDraw(ctx, drawing, copyCanvasToSmall);
 	return (
 		<div className="relative h-full w-full overflow-hidden">
 			<button className="absolute top-0 z-40" onClick={handleUndo}>

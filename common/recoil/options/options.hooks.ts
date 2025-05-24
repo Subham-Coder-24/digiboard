@@ -8,3 +8,9 @@ export const useOptions = () => {
 
 	return options;
 };
+
+//set options
+export const useSetOptions = () => {
+	const setOptions = useSetRecoilState(optionsAtom);
+	return setOptions;
+};

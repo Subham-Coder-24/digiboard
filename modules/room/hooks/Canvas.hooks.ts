@@ -3,12 +3,13 @@ import { useCallback, useEffect, useState } from "react";
 import { socket } from "@/common/lib/socket";
 import { useOptions } from "@/common/recoil/options";
 import usersAtom, { useUsers } from "@/common/recoil/users";
-import { drawOnUndo } from "../helpers/Canvas.helpers";
+import { drawOnUndo, handleMove } from "../helpers/Canvas.helpers";
 import { useBoardPosition } from "./useBoardPosition";
 import { getPos } from "@/common/lib/getPos";
 import { useSetRecoilState } from "recoil";
+
+const savedMoves: Move[] = [];
 let moves: [number, number][] = [];
-const savedMoves: [number, number][][] = [];
 
 export const useDraw = (
 	// options: CtxOptions,
@@ -65,8 +66,13 @@ export const useDraw = (
 
 		setDrawing(false);
 		ctx.closePath();
-		savedMoves.push(moves);
-		socket.emit("draw", moves, options);
+
+		const move: Move = {
+			path: moves,
+			options,
+		};
+		savedMoves.push(move);
+		socket.emit("draw", move);
 		moves = [];
 
 		handelEnd();
@@ -91,45 +97,58 @@ export const useDraw = (
 
 export const useSocketDraw = (
 	ctx: CanvasRenderingContext2D | undefined,
+	drawing: Boolean,
 	handleEnd: () => void
 ) => {
 	const setUsers = useSetRecoilState(usersAtom);
 
 	useEffect(() => {
-		socket.on("user_draw", (newMoves, options, userId) => {
-			if (ctx) {
+		let moveToDrawLater: Move | undefined;
+		let userIdLater = "";
+		socket.on("user_draw", (move, userId) => {
+			if (ctx && !drawing) {
+				handleMove(move, ctx);
 				console.log("------", userId);
+				setUsers((prevUsers) => {
+					const newUsers = { ...prevUsers };
+					// if (!Array.isArray(newUsers[userId])) {
+					// 	newUsers[userId] = [];
+					// }
+					// newUsers[userId] = [...newUsers[userId], newMoves]; // ✅ Correct: push stroke as an array
+					if (newUsers[userId])
+						newUsers[userId] = [...newUsers[userId], move];
 
-				ctx.lineWidth = options.lineWidth;
-				ctx.strokeStyle = options.lineColor;
-				ctx.beginPath();
-
-				newMoves.forEach(([x, y], index) => {
-					if (index === 0) {
-						ctx.moveTo(x, y); // Start from the first point
-					} else {
-						ctx.lineTo(x, y); // Draw to subsequent points
-					}
+					return newUsers;
 				});
+			} else {
+				moveToDrawLater = move;
+				userIdLater = userId;
+			}
+		});
 
-				ctx.stroke();
-				ctx.closePath();
+		// Cleanup
+		return () => {
+			// Cleanup socket events
+			socket.off("user_draw");
 
+			if (moveToDrawLater && userIdLater && ctx) {
+				handleMove(moveToDrawLater, ctx);
 				handleEnd();
 
 				setUsers((prevUsers) => {
 					const newUsers = { ...prevUsers };
 
-					if (!Array.isArray(newUsers[userId])) {
-						newUsers[userId] = [];
-					}
+					newUsers[userIdLater] = [
+						...newUsers[userIdLater],
+						moveToDrawLater as Move,
+					];
 
-					newUsers[userId] = [...newUsers[userId], newMoves]; // ✅ Correct: push stroke as an array
 					return newUsers;
 				});
 			}
-		});
-
+		};
+	}, [ctx, handleEnd, setUsers, drawing]);
+	useEffect(() => {
 		socket.on("user_undo", (userId) => {
 			setUsers((prevUsers) => {
 				const newUsers = { ...prevUsers };
@@ -143,11 +162,8 @@ export const useSocketDraw = (
 				return newUsers;
 			});
 		});
-
-		// Cleanup
 		return () => {
-			socket.off("user_draw");
 			socket.off("user_undo");
 		};
-	}, [ctx, handleEnd, setUsers]);
+	}, [ctx]);
 };

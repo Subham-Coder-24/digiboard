@@ -1,58 +1,37 @@
-export const drawFromSocket = (
-	socketMoves: [number, number][],
-	socketOptions: CtxOptions,
-	ctx: CanvasRenderingContext2D,
-	afterDraw: () => void
+export const handleMove = (
+	// changed rename drawFromSocket
+	move: Move,
+	ctx: CanvasRenderingContext2D
 ) => {
+	const { path, options } = move;
 	const tempCtx = ctx;
 	if (!tempCtx) return;
 
-	tempCtx.lineWidth = socketOptions.lineWidth;
-	tempCtx.strokeStyle = socketOptions.lineColor;
+	tempCtx.lineWidth = options.lineWidth;
+	tempCtx.strokeStyle = options.lineColor;
 
 	tempCtx.beginPath();
-	socketMoves.forEach(([x, y]) => {
+	path.forEach(([x, y]) => {
 		tempCtx.lineTo(x, y);
 	});
 	tempCtx.stroke();
 	tempCtx.closePath();
-	afterDraw();
 };
 export const drawOnUndo = (
 	ctx: CanvasRenderingContext2D,
-	savedMoves: [number, number][][],
-	users: { [key: string]: [number, number][][] }
+	savedMoves: Move[],
+	users: { [key: string]: Move[] }
 ) => {
 	// Clear the entire canvas
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 	// Redraw user moves
-	Object.values(users).forEach((userMoves) => {
-		userMoves.forEach((movePath) => {
-			ctx.beginPath();
-			movePath.forEach(([x, y], index) => {
-				if (index === 0) {
-					ctx.moveTo(x, y);
-				} else {
-					ctx.lineTo(x, y);
-				}
-			});
-			ctx.stroke();
-			ctx.closePath();
-		});
+	Object.values(users).forEach((user) => {
+		user.forEach((move) => handleMove(move, ctx));
 	});
 
 	// Redraw saved moves
-	savedMoves.forEach((movePath) => {
-		ctx.beginPath();
-		movePath.forEach(([x, y], index) => {
-			if (index === 0) {
-				ctx.moveTo(x, y);
-			} else {
-				ctx.lineTo(x, y);
-			}
-		});
-		ctx.stroke();
-		ctx.closePath();
+	savedMoves.forEach((move) => {
+		handleMove(move, ctx);
 	});
 };
