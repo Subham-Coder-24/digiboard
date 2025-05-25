@@ -11,7 +11,7 @@ export const userIds = selector({
 	key: "userIds",
 	get: ({ get }) => {
 		const users = get(usersAtom);
-		console.log("from atoms--", users);
+		// console.log("from atoms--", users);
 
 		return Object.keys(users);
 	},

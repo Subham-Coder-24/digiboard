@@ -4,6 +4,8 @@ export declare global {
 	type Shape = "line" | "circle" | "rect" | "image";
 	type CtxMode = "eraser" | "draw" | "select";
 
+	type Room = Map<string, Move[]>;
+
 	interface CtxOptions {
 		lineWidth: number;
 		lineColor: RgbaColor;
@@ -15,6 +17,7 @@ export declare global {
 	}
 
 	interface ServerToClientEvents {
+		joined: (room: string) => void;
 		user_draw: (move: Move, userId: string) => void;
 		user_undo(userId: string): void;
 		mouse_moved: (x: number, y: number, socketId: string) => void;
