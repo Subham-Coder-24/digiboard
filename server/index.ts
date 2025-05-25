@@ -41,47 +41,82 @@ nextApp.prepare().then(async () => {
 
 	io.on("connection", (socket) => {
 		console.log(` User connected: ${socket.id}`);
-
-		socket.join("global");
-		rooms.get("global")?.set(socket.id, []);
-		setTimeout(() => {
-			io.to(socket.id).emit(
-				"joined",
-				JSON.stringify([...rooms.get("global")!])
+		const getRoomId = () => {
+			const joinedRoom = [...socket.rooms].find(
+				(room) => room !== socket.id
 			);
-		}, 1000);
 
-		const allUser = io.sockets.adapter.rooms.get("global");
-		if (allUser) io.to("global").emit("users_in_room", [...allUser]);
+			if (!joinedRoom) return socket.id;
+
+			return joinedRoom;
+		};
+
+		socket.on("create_room", () => {
+			let roomId: string;
+			do {
+				roomId = Math.random().toString(36).substring(2, 6);
+			} while (rooms.has(roomId));
+
+			socket.join(roomId);
+
+			rooms.set(roomId, new Map());
+
+			rooms.get(roomId)?.set(socket.id, []);
+
+			io.to(socket.id).emit("created", roomId);
+		});
+		socket.on("join_room", (roomId) => {
+			if (rooms.has(roomId)) {
+				socket.join(roomId);
+
+				io.to(socket.id).emit("joined", roomId);
+			} else io.to(socket.id).emit("joined", "", true);
+		});
+		socket.on("joined_room", () => {
+			const roomId = getRoomId();
+			console.log("joined_room", roomId);
+			rooms.get(roomId)?.set(socket.id, []);
+			io.to(socket.id).emit(
+				"room",
+				JSON.stringify([...rooms.get(roomId)!])
+			);
+			socket.broadcast.to(roomId).emit("new_user", socket.id);
+		});
+
+		socket.on("leave_room", () => {
+			const roomId = getRoomId();
+			const user = rooms.get(roomId)?.get(socket.id);
+			if (user?.length == 0) rooms.get(roomId)?.delete(socket.id);
+		});
+
+		// const allUser = io.sockets.adapter.rooms.get("global");
+		// if (allUser) io.to("global").emit("users_in_room", [...allUser]);
 
 		socket.on("draw", (move) => {
-			console.log("drawing", socket.id);
-			addMove("global", socket.id, move);
-			socket.broadcast.emit("user_draw", move, socket.id);
+			const roomId = getRoomId();
+			addMove(roomId, socket.id, move);
+			socket.broadcast.to(roomId).emit("user_draw", move, socket.id);
 		});
 		socket.on("undo", () => {
-			console.log("undo");
-			undoMove("global", socket.id);
-			socket.broadcast.emit("user_undo", socket.id);
+			const roomId = getRoomId();
+			undoMove(roomId, socket.id);
+			socket.broadcast.to(roomId).emit("user_undo", socket.id);
 		});
 
 		socket.on("mouse_move", (x, y) => {
-			// console.log("mouse_move");
-			socket.broadcast.emit("mouse_moved", x, y, socket.id);
+			socket.broadcast
+				.to(getRoomId())
+				.emit("mouse_moved", x, y, socket.id);
 		});
-		socket.on("disconnect", () => {
-			console.log(`User disconnected: ${socket.id}`);
+		socket.on("disconnecting", () => {
+			io.to(getRoomId()).emit("user_disconnected", socket.id);
 
-			const globalRoom = rooms.get("global");
-			if (globalRoom) {
-				const wasDeleted = globalRoom.delete(socket.id);
+			const user = rooms.get(getRoomId())?.get(socket.id);
+			if (user?.length === 0) {
+				rooms.get(getRoomId())?.delete(socket.id);
 			}
 
-			// Notify remaining users about updated user count
-			const allUsers = io.sockets.adapter.rooms.get("global");
-			if (allUsers) {
-				io.to("global").emit("users_in_room", [...allUsers]);
-			}
+			console.log("disconnected from server");
 		});
 	});
 

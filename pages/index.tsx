@@ -1,6 +1,6 @@
 "use client";
-import Canvas from "@/modules/room/comonents/Canvas";
-import Room from "@/modules/room/comonents/Room";
-export default function Home() {
-	return <Room />;
+import Home from "@/modules/home/components/Home";
+
+export default function HomePage() {
+	return <Home />;
 }
