@@ -21,22 +21,36 @@ nextApp.prepare().then(async () => {
 	});
 
 	const rooms = new Map<string, Room>();
-	rooms.set("global", new Map());
+	// rooms.set("global", new Map());
 
 	const addMove = (roomId: string, socketId: string, move: Move) => {
 		const room = rooms.get(roomId);
 
 		if (!room) return; //check
 
-		if (!room.has(socketId)) {
-			room.set(socketId, [move]);
+		if (!room.users.has(socketId)) {
+			room.users.set(socketId, [move]);
 		}
-		room.get(socketId)?.push(move);
+		room.users.get(socketId)!.push(move);
 	};
 
 	const undoMove = (roomId: string, socketId: string) => {
+		const room = rooms.get(roomId)!;
+		room.users.get(socketId)!.pop();
+	};
+
+	const leaveRoom = (roomId: string, socketId: string) => {
 		const room = rooms.get(roomId);
-		room?.get(socketId)?.pop();
+		if (!room) {
+			console.warn(`Room ${roomId} not found in leaveRoom`);
+			return;
+		}
+
+		const userMoves = room.users.get(socketId) || [];
+		room.drawed.push(...userMoves);
+		room.users.delete(socketId);
+
+		console.log(`User ${socketId} left room ${roomId}`, room);
 	};
 
 	io.on("connection", (socket) => {
@@ -59,9 +73,9 @@ nextApp.prepare().then(async () => {
 
 			socket.join(roomId);
 
-			rooms.set(roomId, new Map());
+			rooms.set(roomId, { users: new Map(), drawed: [] });
 
-			rooms.get(roomId)?.set(socket.id, []);
+			rooms.get(roomId)?.users.set(socket.id, []);
 
 			io.to(socket.id).emit("created", roomId);
 		});
@@ -75,18 +89,23 @@ nextApp.prepare().then(async () => {
 		socket.on("joined_room", () => {
 			const roomId = getRoomId();
 			console.log("joined_room", roomId);
-			rooms.get(roomId)?.set(socket.id, []);
-			io.to(socket.id).emit(
-				"room",
-				JSON.stringify([...rooms.get(roomId)!])
-			);
-			socket.broadcast.to(roomId).emit("new_user", socket.id);
+
+			const room = rooms.get(roomId);
+			if (room) {
+				room.users.set(socket.id, []);
+				io.to(socket.id).emit(
+					"room",
+					room,
+					JSON.stringify([...room.users])
+				);
+				socket.broadcast.to(roomId).emit("new_user", socket.id);
+			}
 		});
 
 		socket.on("leave_room", () => {
 			const roomId = getRoomId();
-			const user = rooms.get(roomId)?.get(socket.id);
-			if (user?.length == 0) rooms.get(roomId)?.delete(socket.id);
+			leaveRoom(roomId, socket.id);
+			io.to(roomId).emit("user_disconnected", socket.id);
 		});
 
 		// const allUser = io.sockets.adapter.rooms.get("global");
@@ -109,13 +128,8 @@ nextApp.prepare().then(async () => {
 				.emit("mouse_moved", x, y, socket.id);
 		});
 		socket.on("disconnecting", () => {
+			leaveRoom(getRoomId(), socket.id);
 			io.to(getRoomId()).emit("user_disconnected", socket.id);
-
-			const user = rooms.get(getRoomId())?.get(socket.id);
-			if (user?.length === 0) {
-				rooms.get(getRoomId())?.delete(socket.id);
-			}
-
 			console.log("disconnected from server");
 		});
 	});

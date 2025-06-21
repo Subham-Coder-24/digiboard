@@ -1,13 +1,16 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { socket } from "@/common/lib/socket";
+import { useSetRoomId } from "@/common/recoil/room";
 
 const Home = () => {
 	const [roomId, setRoomId] = useState("");
 	const router = useRouter();
+	const setAtomRoomId = useSetRoomId();
 
 	useEffect(() => {
 		socket.on("created", (roomIdFromServer) => {
+			setAtomRoomId(roomIdFromServer);
 			router.push(roomIdFromServer);
 		});
 
@@ -16,6 +19,7 @@ const Home = () => {
 			failed?: boolean
 		) => {
 			if (!failed) {
+				setAtomRoomId(roomIdFromServer);
 				router.push(roomIdFromServer);
 			} else {
 				console.log("Failed to join room.");
@@ -28,7 +32,7 @@ const Home = () => {
 			socket.off("created");
 			socket.off("joined", handleJoinedRoom);
 		};
-	}, [roomId, router]);
+	}, [roomId, router, setAtomRoomId]);
 
 	useEffect(() => {
 		socket.emit("leave_room");

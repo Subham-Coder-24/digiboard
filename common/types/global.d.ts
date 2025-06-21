@@ -4,7 +4,8 @@ export declare global {
 	type Shape = "line" | "circle" | "rect" | "image";
 	type CtxMode = "eraser" | "draw" | "select";
 
-	type Room = Map<string, Move[]>;
+	// type Room = Map<string, Move[]>;
+	type Room = { users: Map<string, Move[]>; drawed: Move[] };
 
 	interface CtxOptions {
 		lineWidth: number;
@@ -17,7 +18,7 @@ export declare global {
 	}
 
 	interface ServerToClientEvents {
-		room: (room: string) => void;
+		room: (room: Room, usersToParse: string) => void;
 		created: (roomId: string) => void;
 		joined: (roomId: string, failed?: boolean) => void;
 		user_draw: (move: Move, userId: string) => void;
