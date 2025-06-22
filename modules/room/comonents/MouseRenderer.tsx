@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
 import { socket } from "@/common/lib/socket";
-import UserMouse from "./userMouse";
-import { useUserIds } from "@/common/recoil/users";
+import { useRoom } from "@/common/recoil/room";
 
-const MouseRenderer = () => {
-	const userIds = useUserIds();
+import UserMouse from "./UserMouse";
+
+const MousesRenderer = () => {
+	const { users } = useRoom();
 
 	return (
 		<>
-			{userIds.map((userId) => (
-				<UserMouse userId={userId} key={userId} />
-			))}
+			{[...users.keys()].map((userId) => {
+				if (userId === socket.id) return null;
+				return <UserMouse userId={userId} key={userId} />;
+			})}
 		</>
 	);
 };
 
-export default MouseRenderer;
+export default MousesRenderer;

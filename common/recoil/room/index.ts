@@ -1,6 +1,6 @@
 import { roomAtom } from "./room.atom";
-import { useSetRoomId, useRoomId } from "./room.hooks";
+import { useRoom, useSetRoomId, useSetUsers, useMyMoves } from "./room.hooks";
 
 export default roomAtom;
 
-export { useSetRoomId, useRoomId };
+export { useRoom, useSetRoomId, useSetUsers, useMyMoves };

@@ -10,11 +10,14 @@ import { socket } from "@/common/lib/socket";
 
 import MiniMap from "./Minimap";
 import { useKeyPressEvent } from "react-use";
-import { useDraw, useSocketDraw } from "../hooks/Canvas.hooks";
-import { handleMove } from "../helpers/Canvas.helpers";
+import { drawAllMoves, handleMove } from "../helpers/Canvas.helpers";
 import { useBoardPosition } from "../hooks/useBoardPosition";
+import { useRoom } from "@/common/recoil/room";
 
+import { useDraw } from "../hooks/useDraw";
+import { useSocketDraw } from "../hooks/useSocketDraw";
 const Canvas = () => {
+	const room = useRoom();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const smallCanvasRef = useRef<HTMLCanvasElement>(null);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
@@ -55,7 +58,7 @@ const Canvas = () => {
 		handleStartDrawing,
 		handleUndo,
 		drawing,
-	} = useDraw(ctx, dragging, copyCanvasToSmall);
+	} = useDraw(ctx, dragging);
 
 	useEffect(() => {
 		const newCtx = canvasRef.current?.getContext("2d");
@@ -73,41 +76,17 @@ const Canvas = () => {
 			window.removeEventListener("keyup", handleKeyUp);
 		};
 	}, [dragging]);
-	// useEffect(() => {
-	// 	let movesToDrawLater: [number, number][] = [];
-	// 	let optionsToUseLater: CtxOptions = { lineColor: "", lineWidth: 0 };
 
-	// 	socket.on(
-	// 		"user_draw",
-	// 		(move:Move) => {
-	// 			if (ctx) {
-	// 				//changed if (ctx && drawing) {
-	// 				handleMove(
-	// 					move,
-	// 					ctx,
-	// 					// copyCanvasToSmall
-	// 				);
-	// 			} else {
-	// 				movesToDrawLater = movesToDraw;
-	// 				optionsToUseLater = socketOptions;
-	// 			}
-	// 		}
-	// 	);
-
-	// 	return () => {
-	// 		socket.off("user_draw");
-	// 		if (movesToDrawLater.length && ctx) {
-	// 			drawFromSocket(
-	// 				movesToDrawLater,
-	// 				optionsToUseLater,
-	// 				ctx,
-	// 				copyCanvasToSmall
-	// 			);
-	// 			movesToDrawLater = []; // Clear stored moves after drawing
-	// 		}
-	// 	};
-	// }, [ctx]); //changed  [drawing]);
-	useSocketDraw(ctx, drawing, copyCanvasToSmall);
+	useSocketDraw(ctx, drawing);
+	useEffect(() => {
+		if (ctx) {
+			drawAllMoves(ctx, room);
+			copyCanvasToSmall();
+		}
+	}, [ctx, room]);
+	useEffect(() => {
+		if (ctx) socket.emit("joined_room");
+	}, [ctx]);
 	return (
 		<div className="relative h-full w-full overflow-hidden">
 			<button className="absolute top-0 z-40" onClick={handleUndo}>

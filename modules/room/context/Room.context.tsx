@@ -2,8 +2,7 @@ import { createContext, ReactNode, useEffect } from "react";
 
 import { MotionValue, useMotionValue } from "framer-motion";
 import { socket } from "@/common/lib/socket";
-import { useSetRecoilState } from "recoil";
-import usersAtom, { useUserIds } from "@/common/recoil/users";
+import { useSetRoom, useSetUsers } from "@/common/recoil/room/room.hooks";
 
 export const roomContext = createContext<{
 	x: MotionValue<number>;
@@ -11,29 +10,42 @@ export const roomContext = createContext<{
 }>(null!);
 
 const RoomContextProvider = ({ children }: { children: ReactNode }) => {
-	const setUsers = useSetRecoilState(usersAtom);
-	const userIds = useUserIds();
+	const setRoom = useSetRoom();
+	const { handleAddUser, handleRemoveUser } = useSetUsers();
+
 	const x = useMotionValue(0);
 	const y = useMotionValue(0);
 
 	useEffect(() => {
-		socket.on("new_user", (newUsers) => {
-			setUsers((prevUser) => ({ ...prevUser, [newUsers]: [] }));
-		});
+		const handleRoom = (room: any, usersToParse: string) => {
+			const users: Map<string, Move[]> = new Map(
+				JSON.parse(usersToParse)
+			);
+
+			setRoom((prev) => ({
+				...prev,
+				users,
+				movesWithoutUser: room.drawed, // assuming `room.drawed` is valid
+			}));
+		};
+
+		const handleNewUser = (newUser: any) => {
+			handleAddUser(newUser); // your logic to add new user
+		};
+
+		socket.on("room", handleRoom);
+		socket.on("new_user", handleNewUser);
 
 		socket.on("user_disconnected", (userId: string) => {
-			setUsers((prevUsers) => {
-				const newUsers = { ...prevUsers };
-				delete newUsers[userId];
-				return newUsers;
-			});
+			handleRemoveUser(userId);
 		});
 
 		return () => {
+			socket.off("room");
 			socket.off("new_user");
 			socket.off("user_disconnected");
 		};
-	}, [setUsers, userIds]);
+	}, [handleAddUser, handleRemoveUser, setRoom]);
 
 	return (
 		<roomContext.Provider

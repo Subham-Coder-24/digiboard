@@ -16,6 +16,13 @@ export declare global {
 		path: [number, number][];
 		options: CtxOptions;
 	}
+	interface ClientRoom {
+		id: string;
+		users: Map<string, Move[]>;
+		movesWithoutUser: Move[];
+		myMoves: Move[];
+		// usersMoves: Map<string, Move[]>;
+	}
 
 	interface ServerToClientEvents {
 		room: (room: Room, usersToParse: string) => void;
