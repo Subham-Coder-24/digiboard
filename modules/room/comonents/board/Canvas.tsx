@@ -9,18 +9,15 @@ import { useViewportSize } from "@/common/hooks/useViewportSize";
 import { socket } from "@/common/lib/socket";
 
 import { useKeyPressEvent } from "react-use";
-// import { drawAllMoves, handleMove } from "../helpers/Canvas.helpers";
-// import { useBoardPosition } from "../hooks/useBoardPosition";
 import { useRoom } from "@/common/recoil/room";
 
-// import { useDraw } from "../hooks/useDraw";
-// import { useSocketDraw } from "../hooks/useSocketDraw";
 import MiniMap from "./Minimap";
 import { useBoardPosition } from "../../hooks/useBoardPosition";
 import { useSocketDraw } from "../../hooks/useSocketDraw";
 import { drawAllMoves } from "../../helpers/Canvas.helpers";
 import { useDraw } from "../../hooks/useDraw";
 import Background from "./Background";
+import { useOptionsValue } from "@/common/recoil/options";
 
 const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 	const room = useRoom();
@@ -30,6 +27,8 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 	const [dragging, setDragging] = useState(false);
 	const [, setMovedMiniMap] = useState(false);
 	const { width, height } = useViewportSize();
+
+	const options = useOptionsValue();
 
 	useKeyPressEvent("Control", (e) => {
 		if (e?.ctrlKey && !dragging) {
@@ -88,10 +87,10 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 	useSocketDraw(ctx, drawing);
 	useEffect(() => {
 		if (ctx) {
-			drawAllMoves(ctx, room);
+			drawAllMoves(ctx, room, options);
 			copyCanvasToSmall();
 		}
-	}, [ctx, room]);
+	}, [ctx, room, options]);
 	useEffect(() => {
 		if (ctx) socket.emit("joined_room");
 	}, [ctx]);
@@ -121,7 +120,7 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 				onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY)}
 				onMouseUp={handleEndDrawing}
 				onMouseMove={(e) => {
-					handleDraw(e.clientX, e.clientY);
+					handleDraw(e.clientX, e.clientY, e.shiftKey);
 				}}
 				onTouchStart={(e) =>
 					handleStartDrawing(

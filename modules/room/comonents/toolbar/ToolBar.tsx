@@ -5,6 +5,7 @@ import LineWidthPicker from "./LineWidthPicker";
 import Eraser from "./Eraser";
 import { RefObject } from "react";
 import { FaUndo } from "react-icons/fa";
+import ShapeSelector from "./ShapeSelector";
 
 const ToolBar = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 	return (
@@ -17,6 +18,7 @@ const ToolBar = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 			</button>
 			<div className="h-px w-full bg-white" />
 			<ColorPicker />
+			<ShapeSelector />
 			<LineWidthPicker />
 			<Eraser />
 			<button className="text-xl">

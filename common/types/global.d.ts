@@ -9,8 +9,6 @@ export declare global {
 		b: number;
 		a: number;
 	};
-	// type Room = Map<string, Move[]>;
-	// type Room = { users: Map<string, Move[]>; drawed: Move[] };
 	type Room = {
 		usersMoves: Map<string, Move[]>;
 		drawed: Move[];
@@ -25,9 +23,14 @@ export declare global {
 		lineWidth: number;
 		lineColor: RgbaColor;
 		erase: boolean;
+		shape: Shape;
 	}
 	// combining path and option in one inteface
 	interface Move {
+		shape: Shape;
+		radius: number;
+		width: number;
+		height: number;
 		path: [number, number][];
 		options: CtxOptions;
 		timestamp: number;
