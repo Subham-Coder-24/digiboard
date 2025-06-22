@@ -6,7 +6,12 @@ export declare global {
 
 	// type Room = Map<string, Move[]>;
 	type Room = { users: Map<string, Move[]>; drawed: Move[] };
-
+	type RgbaColor = {
+		r: number;
+		g: number;
+		b: number;
+		a: number;
+	};
 	interface CtxOptions {
 		lineWidth: number;
 		lineColor: RgbaColor;

@@ -19,11 +19,11 @@ const MiniMap = forwardRef<
 
 	useEffect(() => {
 		const updateX = (newX: number) => {
-			if (dragging) x.set(-newX * 10);
+			if (dragging) x.set(-newX * 7);
 		};
 
 		const updateY = (newY: number) => {
-			if (dragging) y.set(-newY * 10);
+			if (dragging) y.set(-newY * 7);
 		};
 
 		const unsubscribeX = miniX.onChange(updateX);
@@ -37,10 +37,10 @@ const MiniMap = forwardRef<
 
 	return (
 		<div
-			className="absolute right-10 top-10 z-30 overflow-hidden rounded-lg shadow-lg"
+			className="absolute right-10 top-10 z-30 overflow-hidden rounded-lg shadow-lg bg-zinc-200"
 			style={{
-				width: CANVAS_SIZE.width / 10,
-				height: CANVAS_SIZE.height / 10,
+				width: CANVAS_SIZE.width / 7,
+				height: CANVAS_SIZE.height / 7,
 			}}
 			ref={containerRef}
 		>
@@ -59,12 +59,12 @@ const MiniMap = forwardRef<
 				onDragEnd={() => setMovedMinimap(false)}
 				className="absolute top-0 left-0 cursor-grab rounded-lg border-2 border-red-500"
 				style={{
-					width: width / 10,
-					height: height / 10,
+					width: width / 7,
+					height: height / 7,
 					x: miniX,
 					y: miniY,
 				}}
-				animate={{ x: -x / 10, y: -y / 10 }}
+				animate={{ x: -x / 7, y: -y / 7 }}
 				transition={{ duration: 0 }}
 			/>
 		</div>

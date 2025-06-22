@@ -1,9 +1,10 @@
 import { useMyMoves } from "@/common/recoil/room";
 import { useBoardPosition } from "./useBoardPosition";
 import { useCallback, useEffect, useState } from "react";
-import { useOptions } from "@/common/recoil/options";
+import { useOptionsValue } from "@/common/recoil/options";
 import { socket } from "@/common/lib/socket";
 import { getPos } from "@/common/lib/getPos";
+import { getStringFromRgba } from "@/common/lib/rgba";
 
 let tempMoves: [number, number][] = [];
 export const useDraw = (
@@ -12,7 +13,7 @@ export const useDraw = (
 	blocked: boolean
 ) => {
 	const { handleAddMyMove, handleRemoveMyMove } = useMyMoves();
-	const options = useOptions();
+	const options = useOptionsValue();
 
 	const [drawing, setDrawing] = useState(false);
 	const boardPosition = useBoardPosition();
@@ -23,7 +24,7 @@ export const useDraw = (
 			ctx.lineJoin = "round";
 			ctx.lineCap = "round";
 			ctx.lineWidth = options.lineWidth;
-			ctx.strokeStyle = options.lineColor;
+			ctx.strokeStyle = getStringFromRgba(options.lineColor);
 		}
 	});
 	const handleUndo = useCallback(() => {

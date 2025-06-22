@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { socket } from "@/common/lib/socket";
+import { getStringFromRgba } from "../lib/rgba";
 let moves: [number, number][] = [];
 
 export const useDraw = (
@@ -12,7 +13,7 @@ export const useDraw = (
 			ctx.lineJoin = "round";
 			ctx.lineCap = "round";
 			ctx.lineWidth = options.lineWidth;
-			ctx.strokeStyle = options.lineColor;
+			ctx.strokeStyle = getStringFromRgba(options.lineColor);
 		}
 	});
 

@@ -42,7 +42,6 @@ nextApp.prepare().then(async () => {
 	const leaveRoom = (roomId: string, socketId: string) => {
 		const room = rooms.get(roomId);
 		if (!room) {
-			console.warn(`Room ${roomId} not found in leaveRoom`);
 			return;
 		}
 

@@ -9,7 +9,7 @@ import RoomContextProvider from "../context/Room.context";
 import Canvas from "./Canvas";
 import { MousePosition } from "./MousePosition";
 import MouseRenderer from "./MouseRenderer"; // Assuming default export
-import { ToolBar } from "./ToolBar";
+import ToolBar from "./toolbar/Toolbar";
 
 const Room = () => {
 	const room = useRoom();

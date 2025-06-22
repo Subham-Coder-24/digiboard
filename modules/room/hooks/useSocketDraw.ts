@@ -14,7 +14,6 @@ export const useSocketDraw = (
 	drawing: Boolean
 ) => {
 	const { handleAddMoveToUser, handleRemoveMoveFromUser } = useSetUsers();
-	console.log("draw form scoker");
 
 	useEffect(() => {
 		let moveToDrawLater: Move | undefined;

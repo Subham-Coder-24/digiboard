@@ -1,3 +1,5 @@
+import { getStringFromRgba } from "@/common/lib/rgba";
+
 export const handleMove = (
 	// changed rename drawFromSocket
 	move: Move,
@@ -8,7 +10,7 @@ export const handleMove = (
 	if (!tempCtx) return;
 
 	tempCtx.lineWidth = options.lineWidth;
-	tempCtx.strokeStyle = options.lineColor;
+	tempCtx.strokeStyle = getStringFromRgba(options.lineColor);
 
 	tempCtx.beginPath();
 	path.forEach(([x, y]) => {
