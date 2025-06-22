@@ -3,6 +3,7 @@ import { createContext, ReactNode, useEffect } from "react";
 import { MotionValue, useMotionValue } from "framer-motion";
 import { socket } from "@/common/lib/socket";
 import { useSetRoom, useSetUsers } from "@/common/recoil/room/room.hooks";
+import { COLORS_ARRAY } from "@/common/constants/colors";
 
 export const roomContext = createContext<{
 	x: MotionValue<number>;
@@ -25,7 +26,23 @@ const RoomContextProvider = ({ children }: { children: ReactNode }) => {
 			const usersMoves = new Map<string, Move[]>(
 				JSON.parse(usersMovesToParse)
 			);
-			const users = new Map<string, string>(JSON.parse(usersToParse));
+			const usersParsed = new Map<string, string>(
+				JSON.parse(usersToParse)
+			);
+			const users = new Map<string, User>();
+
+			usersParsed.forEach((name, id) => {
+				if (id === socket.id) return;
+
+				const index = [...usersParsed.keys()].indexOf(id);
+
+				const color = COLORS_ARRAY[index % COLORS_ARRAY.length];
+
+				users.set(id, {
+					name,
+					color,
+				});
+			});
 
 			setRoom((prev) => ({
 				...prev,

@@ -16,6 +16,10 @@ export declare global {
 		drawed: Move[];
 		users: Map<string, string>;
 	};
+	interface User {
+		name: string;
+		color: string;
+	}
 
 	interface CtxOptions {
 		lineWidth: number;

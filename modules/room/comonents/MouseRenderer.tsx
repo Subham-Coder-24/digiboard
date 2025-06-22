@@ -10,13 +10,7 @@ const MousesRenderer = () => {
 		<>
 			{[...users.keys()].map((userId) => {
 				if (userId === socket.id) return null;
-				return (
-					<UserMouse
-						userId={userId}
-						key={userId}
-						username={users.get(userId) || "Anonymous"}
-					/>
-				);
+				return <UserMouse userId={userId} key={userId} />;
 			})}
 		</>
 	);
