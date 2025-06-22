@@ -2,7 +2,8 @@ import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewportSize } from "@/common/hooks/useViewportSize";
 import { motion, MotionValue, useMotionValue } from "framer-motion";
 import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
-import { useBoardPosition } from "../hooks/useBoardPosition";
+import { useBoardPosition } from "../../hooks/useBoardPosition";
+// import { useBoardPosition } from "../hooks/useBoardPosition";
 
 const MiniMap = forwardRef<
 	HTMLCanvasElement,
@@ -37,7 +38,7 @@ const MiniMap = forwardRef<
 
 	return (
 		<div
-			className="absolute right-10 top-10 z-30 overflow-hidden rounded-lg shadow-lg bg-zinc-200"
+			className="absolute right-10 top-10 z-30 overflow-hidden rounded-lg shadow-lg bg-zinc-50"
 			style={{
 				width: CANVAS_SIZE.width / 7,
 				height: CANVAS_SIZE.height / 7,

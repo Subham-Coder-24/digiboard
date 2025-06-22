@@ -24,11 +24,21 @@ export declare global {
 	interface CtxOptions {
 		lineWidth: number;
 		lineColor: RgbaColor;
+		erase: boolean;
 	}
 	// combining path and option in one inteface
 	interface Move {
 		path: [number, number][];
 		options: CtxOptions;
+		timestamp: number;
+		eraser: boolean;
+	}
+	interface Message {
+		userId: string;
+		username: string;
+		color: string;
+		msg: string;
+		id: number;
 	}
 	interface ClientRoom {
 		id: string;
@@ -39,6 +49,9 @@ export declare global {
 	}
 
 	interface ServerToClientEvents {
+		your_move: (move: Move) => void;
+		new_msg: (userId: string, msg: string) => void;
+
 		room_exists: (exists: boolean) => void;
 		room: (
 			room: Room,
@@ -63,5 +76,6 @@ export declare global {
 		join_room: (room: string, username: string) => void;
 		joined_room: () => void;
 		leave_room: () => void;
+		send_msg: (msg: string) => void;
 	}
 }

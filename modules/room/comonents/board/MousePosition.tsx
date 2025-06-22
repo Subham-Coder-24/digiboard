@@ -1,9 +1,10 @@
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import { socket } from "@/common/lib/socket";
-import { useBoardPosition } from "../hooks/useBoardPosition";
+// import { useBoardPosition } from "../hooks/useBoardPosition";
 import { useInterval, useMouse } from "react-use"; // or any interval hook
 import { getPos } from "@/common/lib/getPos";
+import { useBoardPosition } from "../../hooks/useBoardPosition";
 
 export const MousePosition = () => {
 	const prevPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -19,7 +20,7 @@ export const MousePosition = () => {
 			socket.emit("mouse_move", getPos(docX, x), getPos(docY, y)); //check
 			prevPosition.current = { x: docX, y: docY };
 		}
-	}, 25);
+	}, 150);
 
 	return (
 		<motion.div

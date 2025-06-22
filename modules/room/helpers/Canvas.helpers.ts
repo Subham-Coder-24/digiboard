@@ -1,4 +1,3 @@
-import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { getStringFromRgba } from "@/common/lib/rgba";
 
 export const handleMove = (
@@ -13,49 +12,33 @@ export const handleMove = (
 	tempCtx.lineWidth = options.lineWidth;
 	tempCtx.strokeStyle = getStringFromRgba(options.lineColor);
 
+	if (move.eraser) ctx.globalCompositeOperation = "destination-out";
 	tempCtx.beginPath();
 	path.forEach(([x, y]) => {
 		tempCtx.lineTo(x, y);
 	});
 	tempCtx.stroke();
 	tempCtx.closePath();
-};
-export const drawBackground = (ctx: CanvasRenderingContext2D) => {
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "#ccc";
-
-	for (let i = 0; i < CANVAS_SIZE.height; i += 25) {
-		ctx.beginPath();
-		ctx.moveTo(0, i);
-		ctx.lineTo(ctx.canvas.width, i);
-		ctx.stroke();
-	}
-
-	for (let i = 0; i < CANVAS_SIZE.width; i += 25) {
-		ctx.beginPath();
-		ctx.moveTo(i, 0);
-		ctx.lineTo(i, ctx.canvas.height);
-		ctx.stroke();
-	}
+	ctx.globalCompositeOperation = "source-over";
 };
 export const drawAllMoves = (
 	ctx: CanvasRenderingContext2D,
 	room: ClientRoom
 ) => {
 	const { usersMoves, movesWithoutUser, myMoves } = room;
-	// Clear the entire canvas
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	drawBackground(ctx);
-	movesWithoutUser.forEach((move) => {
-		handleMove(move, ctx);
-	});
+
+	const moves = [...movesWithoutUser, ...myMoves];
+
 	// Redraw user moves
 	usersMoves.forEach((usersMoves) => {
-		usersMoves.forEach((move) => handleMove(move, ctx));
+		moves.push(...usersMoves);
 	});
 
+	moves.sort((a, b) => a.timestamp - b.timestamp);
+
 	// Redraw saved moves
-	myMoves.forEach((move) => {
+	moves.forEach((move) => {
 		handleMove(move, ctx);
 	});
 };

@@ -5,6 +5,7 @@ import { useOptionsValue } from "@/common/recoil/options";
 import { socket } from "@/common/lib/socket";
 import { getPos } from "@/common/lib/getPos";
 import { getStringFromRgba } from "@/common/lib/rgba";
+import { handleMove } from "../helpers/Canvas.helpers";
 
 let tempMoves: [number, number][] = [];
 export const useDraw = (
@@ -25,7 +26,16 @@ export const useDraw = (
 			ctx.lineCap = "round";
 			ctx.lineWidth = options.lineWidth;
 			ctx.strokeStyle = getStringFromRgba(options.lineColor);
+			if (options.erase) ctx.globalCompositeOperation = "destination-out";
 		}
+	});
+	useEffect(() => {
+		socket.on("your_move", (move) => {
+			handleAddMyMove(move);
+		});
+		return () => {
+			socket.off("your_move");
+		};
 	});
 	const handleUndo = useCallback(() => {
 		if (ctx) {
@@ -65,9 +75,11 @@ export const useDraw = (
 		const move: Move = {
 			path: tempMoves,
 			options,
+			timestamp: 0,
+			eraser: options.erase,
 		};
-		handleAddMyMove(move);
 		tempMoves = [];
+		ctx.globalCompositeOperation = "source-over";
 		socket.emit("draw", move);
 	};
 

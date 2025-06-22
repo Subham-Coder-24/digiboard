@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 
 import { motion, useMotionValue } from "framer-motion";
 
@@ -8,15 +8,21 @@ import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewportSize } from "@/common/hooks/useViewportSize";
 import { socket } from "@/common/lib/socket";
 
-import MiniMap from "./Minimap";
 import { useKeyPressEvent } from "react-use";
-import { drawAllMoves, handleMove } from "../helpers/Canvas.helpers";
-import { useBoardPosition } from "../hooks/useBoardPosition";
+// import { drawAllMoves, handleMove } from "../helpers/Canvas.helpers";
+// import { useBoardPosition } from "../hooks/useBoardPosition";
 import { useRoom } from "@/common/recoil/room";
 
-import { useDraw } from "../hooks/useDraw";
-import { useSocketDraw } from "../hooks/useSocketDraw";
-const Canvas = () => {
+// import { useDraw } from "../hooks/useDraw";
+// import { useSocketDraw } from "../hooks/useSocketDraw";
+import MiniMap from "./Minimap";
+import { useBoardPosition } from "../../hooks/useBoardPosition";
+import { useSocketDraw } from "../../hooks/useSocketDraw";
+import { drawAllMoves } from "../../helpers/Canvas.helpers";
+import { useDraw } from "../../hooks/useDraw";
+import Background from "./Background";
+
+const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 	const room = useRoom();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const smallCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,11 +77,13 @@ const Canvas = () => {
 		};
 
 		window.addEventListener("keyup", handleKeyUp);
-
+		const undoBtn = undoRef.current;
+		undoBtn?.addEventListener("click", handleUndo);
 		return () => {
 			window.removeEventListener("keyup", handleKeyUp);
+			undoBtn?.removeEventListener("click", handleUndo);
 		};
-	}, [dragging]);
+	}, [dragging, handleUndo, undoRef]);
 
 	useSocketDraw(ctx, drawing);
 	useEffect(() => {
@@ -89,17 +97,15 @@ const Canvas = () => {
 	}, [ctx]);
 	return (
 		<div className="relative h-full w-full overflow-hidden">
-			<button className="absolute top-0 z-40" onClick={handleUndo}>
+			{/* <button className="absolute top-0 z-40" onClick={handleUndo}>
 				Undo
-			</button>
+			</button> */}
 			<motion.canvas
 				// SETTINGS
 				ref={canvasRef}
 				width={CANVAS_SIZE.width}
 				height={CANVAS_SIZE.height}
-				className={`bg-zinc-100 absolute top-0 z-10 ${
-					dragging && "cursor-move"
-				}`}
+				className={`absolute top-0 z-10 ${dragging && "cursor-move"}`}
 				style={{ x, y }}
 				// DRAG
 				drag={dragging}
@@ -131,6 +137,7 @@ const Canvas = () => {
 					)
 				}
 			/>
+			<Background />
 			<MiniMap
 				ref={smallCanvasRef}
 				dragging={dragging}
