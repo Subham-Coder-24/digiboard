@@ -38,7 +38,8 @@ const Home = () => {
 
 	useEffect(() => {
 		socket.emit("leave_room");
-	}, []);
+		setAtomRoomId("");
+	}, [setAtomRoomId]);
 
 	const handleCreateRoom = () => {
 		socket.emit("create_room", username);

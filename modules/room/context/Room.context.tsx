@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect } from "react";
+import { createContext, ReactNode, RefObject, useEffect, useRef } from "react";
 
 import { MotionValue, useMotionValue } from "framer-motion";
 import { socket } from "@/common/lib/socket";
@@ -8,6 +8,10 @@ import { COLORS_ARRAY } from "@/common/constants/colors";
 export const roomContext = createContext<{
 	x: MotionValue<number>;
 	y: MotionValue<number>;
+	undoRef: RefObject<HTMLButtonElement>;
+	redoRef: RefObject<HTMLButtonElement>;
+	canvasRef: RefObject<HTMLCanvasElement>;
+	bgRef: RefObject<HTMLCanvasElement>;
 }>(null!);
 
 const RoomContextProvider = ({ children }: { children: ReactNode }) => {
@@ -16,6 +20,10 @@ const RoomContextProvider = ({ children }: { children: ReactNode }) => {
 
 	const x = useMotionValue(0);
 	const y = useMotionValue(0);
+
+	const undoRef = useRef<HTMLButtonElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const bgRef = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
 		const handleRoom = (
@@ -75,6 +83,9 @@ const RoomContextProvider = ({ children }: { children: ReactNode }) => {
 			value={{
 				x,
 				y,
+				bgRef,
+				undoRef,
+				canvasRef,
 			}}
 		>
 			{children}

@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { motion, useMotionValue } from "framer-motion";
 
@@ -18,15 +18,17 @@ import { drawAllMoves } from "../../helpers/Canvas.helpers";
 import { useDraw } from "../../hooks/useDraw";
 import Background from "./Background";
 import { useOptionsValue } from "@/common/recoil/options";
+import { useRefs } from "../../hooks/useRefs";
 
-const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
+const Canvas = () => {
 	const room = useRoom();
-	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const smallCanvasRef = useRef<HTMLCanvasElement>(null);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 	const [dragging, setDragging] = useState(false);
 	const [, setMovedMiniMap] = useState(false);
 	const { width, height } = useViewportSize();
+
+	const { canvasRef, bgRef, undoRef } = useRefs();
 
 	const options = useOptionsValue();
 
@@ -41,7 +43,7 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 
 	const { x, y } = useBoardPosition();
 
-	const copyCanvasToSmall = () => {
+	const copyCanvasToSmall = useCallback(() => {
 		if (canvasRef.current && smallCanvasRef.current) {
 			const smallCtx = smallCanvasRef.current.getContext("2d");
 			if (smallCtx) {
@@ -55,7 +57,7 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 				);
 			}
 		}
-	};
+	}, [canvasRef, smallCanvasRef]);
 
 	const {
 		handleDraw,
@@ -82,7 +84,7 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 			window.removeEventListener("keyup", handleKeyUp);
 			undoBtn?.removeEventListener("click", handleUndo);
 		};
-	}, [dragging, handleUndo, undoRef]);
+	}, [dragging, handleUndo, undoRef, canvasRef]);
 
 	useSocketDraw(ctx, drawing);
 	useEffect(() => {
@@ -136,7 +138,7 @@ const Canvas = ({ undoRef }: { undoRef: RefObject<HTMLButtonElement> }) => {
 					)
 				}
 			/>
-			<Background />
+			<Background bgRef={bgRef} />
 			<MiniMap
 				ref={smallCanvasRef}
 				dragging={dragging}

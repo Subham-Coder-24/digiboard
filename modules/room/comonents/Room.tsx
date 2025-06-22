@@ -18,15 +18,14 @@ import Chat from "./chat/Chat";
 
 const Room = () => {
 	const room = useRoom();
-	const undoRef = useRef<HTMLButtonElement>(null);
 	if (!room.id) return <NameInput />;
 
 	return (
 		<RoomContextProvider>
 			<div className="relative h-full w-full overflow-hidden">
 				<UserList />
-				<ToolBar undoRef={undoRef} />
-				<Canvas undoRef={undoRef} />
+				<ToolBar />
+				<Canvas />
 				<MousePosition />
 				<MousesRenderer />
 				<Chat />
