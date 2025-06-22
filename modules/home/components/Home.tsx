@@ -5,6 +5,7 @@ import { useModal } from "@/common/recoil/modal";
 import { useSetRoomId } from "@/common/recoil/room";
 import NotFoundModal from "../modals/NotFound";
 const Home = () => {
+	const [username, setUsername] = useState("");
 	const [roomId, setRoomId] = useState("");
 	const router = useRouter();
 	const setAtomRoomId = useSetRoomId();
@@ -40,12 +41,12 @@ const Home = () => {
 	}, []);
 
 	const handleCreateRoom = () => {
-		socket.emit("create_room");
+		socket.emit("create_room", username);
 	};
 
 	const handleJoinRoom = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (roomId) socket.emit("join_room", roomId);
+		if (roomId) socket.emit("join_room", roomId, username);
 	};
 
 	return (
@@ -57,6 +58,20 @@ const Home = () => {
 				<h3 className="text-center text-lg font-medium mb-6">
 					Real-time whiteboard
 				</h3>
+				<div className="mt-10 flex flex-col gap-2">
+					<label className="self-start font-bold leading-tight">
+						Enter your name
+					</label>
+					<input
+						className="input"
+						id="room-id"
+						placeholder="Username..."
+						value={username}
+						onChange={(e) =>
+							setUsername(e.target.value.slice(0, 15))
+						}
+					/>
+				</div>
 
 				<form className="flex flex-col gap-4" onSubmit={handleJoinRoom}>
 					<label htmlFor="room-id" className="font-semibold">

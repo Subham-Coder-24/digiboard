@@ -17,20 +17,26 @@ const RoomContextProvider = ({ children }: { children: ReactNode }) => {
 	const y = useMotionValue(0);
 
 	useEffect(() => {
-		const handleRoom = (room: any, usersToParse: string) => {
-			const users: Map<string, Move[]> = new Map(
-				JSON.parse(usersToParse)
+		const handleRoom = (
+			room: any,
+			usersMovesToParse: string,
+			usersToParse: string
+		) => {
+			const usersMoves = new Map<string, Move[]>(
+				JSON.parse(usersMovesToParse)
 			);
+			const users = new Map<string, string>(JSON.parse(usersToParse));
 
 			setRoom((prev) => ({
 				...prev,
 				users,
+				usersMoves,
 				movesWithoutUser: room.drawed, // assuming `room.drawed` is valid
 			}));
 		};
 
-		const handleNewUser = (newUser: any) => {
-			handleAddUser(newUser); // your logic to add new user
+		const handleNewUser = (userId: string, username: string) => {
+			handleAddUser(userId, username); // your logic to add new user
 		};
 
 		socket.on("room", handleRoom);

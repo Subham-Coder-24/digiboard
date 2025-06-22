@@ -8,7 +8,13 @@ interface SocketMouseProps {
 	userId: string;
 }
 
-const UserMouse = ({ userId }: { userId: string }) => {
+const UserMouse = ({
+	userId,
+	username,
+}: {
+	userId: string;
+	username: string;
+}) => {
 	const boardPos = useBoardPosition();
 	const [x, setX] = useState(boardPos.x.get());
 	const [y, setY] = useState(boardPos.y.get());
@@ -40,16 +46,19 @@ const UserMouse = ({ userId }: { userId: string }) => {
 			socket.off("mouse_moved", handleMouseMoved);
 		};
 	}, [userId]);
+	console.log(username);
 
 	return (
 		<motion.div
-			className={`absolute top-0 left-0 text-blue-800 ${
-				pos.x === -1 ? "hidden" : ""
-			} pointer-events-none`}
+			className={`pointer-events-none absolute top-0 left-0 z-20 text-blue-800 ${
+				pos.x === -1 && "hidden"
+			}`}
+			style={{ color: "black" }}
 			animate={{ x: pos.x + x, y: pos.y + y }}
-			transition={{ duration: 0.1, ease: "linear" }}
+			transition={{ duration: 0.2, ease: "linear" }}
 		>
 			<BsCursorFill className="-rotate-90" />
+			<p className="ml-2">{username || "No username"}</p>
 		</motion.div>
 	);
 };

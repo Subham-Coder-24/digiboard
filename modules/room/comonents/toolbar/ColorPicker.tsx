@@ -28,8 +28,6 @@ const ColorPicker = () => {
 		return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
 	}
 
-	console.log("options.lineColor", options.lineColor);
-
 	return (
 		<div className="relative flex items-center" ref={ref}>
 			<button
