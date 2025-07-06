@@ -27,7 +27,6 @@ export declare global {
 	}
 	// combining path and option in one inteface
 	interface Move {
-		shape: Shape;
 		radius: number;
 		width: number;
 		height: number;
@@ -35,6 +34,7 @@ export declare global {
 		options: CtxOptions;
 		timestamp: number;
 		eraser: boolean;
+		base64: string;
 	}
 	interface Message {
 		userId: string;

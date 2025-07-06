@@ -2,7 +2,6 @@ import { useRoom } from "@/common/recoil/room";
 
 const UserList = () => {
 	const { users } = useRoom();
-	console.log(users);
 
 	return (
 		<div className="pointer-events-none absolute z-30 flex p-5">

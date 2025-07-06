@@ -1,17 +1,11 @@
-import { useMyMoves, useRoom } from "@/common/recoil/room";
+import { useRoom } from "@/common/recoil/room";
 import { useBoardPosition } from "./useBoardPosition";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useOptionsValue } from "@/common/recoil/options";
 import { socket } from "@/common/lib/socket";
 import { getPos } from "@/common/lib/getPos";
-import { getStringFromRgba } from "@/common/lib/rgba";
-import {
-	drawAllMoves,
-	drawCircle,
-	drawLine,
-	drawRect,
-	handleMove,
-} from "../helpers/Canvas.helpers";
+import { drawCircle, drawLine, drawRect } from "../helpers/Canvas.helpers";
+import { useRefs } from "./useRefs";
 
 let tempMoves: [number, number][] = [];
 
@@ -19,67 +13,49 @@ let tempCircle = { cX: 0, cY: 0, radiusX: 0, radiusY: 0 };
 let tempSize = { width: 0, height: 0 };
 let tempRadius = 0;
 
-const setupCtxOptions = (
-	ctx: CanvasRenderingContext2D,
-	options: CtxOptions
-) => {
-	ctx.lineJoin = "round";
-	ctx.lineCap = "round";
-	ctx.lineWidth = options.lineWidth;
-	ctx.strokeStyle = getStringFromRgba(options.lineColor);
-	if (options.erase) ctx.globalCompositeOperation = "destination-out";
-};
-export const useDraw = (
-	// options: CtxOptions,
-	ctx: CanvasRenderingContext2D | undefined,
-	blocked: boolean
-) => {
-	const { handleAddMyMove, handleRemoveMyMove } = useMyMoves();
-	const options = useOptionsValue();
+export const useDraw = (blocked: boolean, drawAllMoves: () => void) => {
 	const room = useRoom();
+	const { canvasRef } = useRefs();
 
 	const [drawing, setDrawing] = useState(false);
 	const boardPosition = useBoardPosition();
+
 	const movedX = boardPosition.x;
 	const movedY = boardPosition.y;
-	useEffect(() => {
-		if (ctx) {
-			setupCtxOptions(ctx, options);
-		}
-	});
-	useEffect(() => {
-		socket.on("your_move", (move) => {
-			handleAddMyMove(move);
-		});
-		return () => {
-			socket.off("your_move");
-		};
-	});
-	const handleUndo = useCallback(() => {
-		if (ctx) {
-			handleRemoveMyMove();
-			socket.emit("undo");
-		}
-	}, [ctx, handleRemoveMyMove]);
 
+	const options = useOptionsValue();
+
+	const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 	useEffect(() => {
-		const handleUndoKeyboard = (e: KeyboardEvent) => {
-			if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
-				handleUndo();
+		const newCtx = canvasRef.current.getContext("2d");
+		if (newCtx) setCtx(newCtx);
+	}, [canvasRef]);
+	function rgbaToString(color: RgbaColor): string {
+		return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+	}
+	const setupCtxOptions = () => {
+		if (ctx) {
+			ctx.lineJoin = "round";
+			ctx.lineCap = "round";
+			ctx.lineWidth = options.lineWidth;
+			ctx.strokeStyle = rgbaToString(options.lineColor);
+			if (options.erase) ctx.globalCompositeOperation = "destination-out";
+			else {
+				ctx.globalCompositeOperation = "source-over";
 			}
-		};
-
-		document.addEventListener("keydown", handleUndoKeyboard);
-		return () => {
-			document.removeEventListener("keydown", handleUndoKeyboard);
-		};
-	}, [handleUndo]);
-
+		}
+	};
+	const drawAndSet = () => {
+		drawAllMoves();
+		setupCtxOptions();
+	};
 	const handleStartDrawing = (x: number, y: number) => {
 		if (!ctx || blocked) return;
 		const [finalX, finalY] = [getPos(x, movedX), getPos(y, movedY)];
 
 		setDrawing(true);
+		setupCtxOptions();
+
 		ctx.beginPath();
 		ctx.lineTo(finalX, finalY);
 		ctx.stroke();
@@ -102,16 +78,15 @@ export const useDraw = (
 
 		const move: Move = {
 			...tempSize,
-			shape: options.shape,
 			radius: tempRadius,
 			path: tempMoves,
 			options,
 			timestamp: 0,
 			eraser: options.erase,
+			base64: "",
 		};
 
 		tempMoves = [];
-		ctx.globalCompositeOperation = "source-over";
 		socket.emit("draw", move);
 	};
 
@@ -125,19 +100,19 @@ export const useDraw = (
 			case "line":
 				if (shift) {
 					tempMoves = tempMoves.slice(0, 1);
-					drawAllMoves(ctx, room, options);
+					drawAndSet();
 				}
 				drawLine(ctx, tempMoves[0], finalX, finalY, shift);
 				tempMoves.push([finalX, finalY]);
 				break;
 
 			case "circle":
-				drawAllMoves(ctx, room, options);
+				drawAndSet();
 				tempRadius = drawCircle(ctx, tempMoves[0], finalX, finalY);
 				break;
 
 			case "rect":
-				drawAllMoves(ctx, room, options);
+				drawAndSet();
 				tempSize = drawRect(ctx, tempMoves[0], finalX, finalY, shift);
 				break;
 
@@ -152,7 +127,6 @@ export const useDraw = (
 		handleEndDrawing,
 		handleDraw,
 		handleStartDrawing,
-		handleUndo,
 		drawing,
 	};
 };

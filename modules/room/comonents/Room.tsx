@@ -15,6 +15,7 @@ import MousesRenderer from "./board/MouseRenderer";
 import ToolBar from "./toolbar/ToolBar";
 import Canvas from "./board/Canvas";
 import Chat from "./chat/Chat";
+import MoveImage from "./board/MoveImage";
 
 const Room = () => {
 	const room = useRoom();
@@ -26,6 +27,7 @@ const Room = () => {
 				<UserList />
 				<ToolBar />
 				<Canvas />
+				<MoveImage />
 				<MousePosition />
 				<MousesRenderer />
 				<Chat />
