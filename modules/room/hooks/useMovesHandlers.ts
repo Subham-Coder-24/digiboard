@@ -47,86 +47,85 @@ export const useMovesHandlers = () => {
 			}
 		}
 	};
-	const drawMove = (move: Move) =>
-		new Promise((resolve) => {
-			const { path, eraser } = move;
+	const drawMove = (move: Move, image?: HTMLImageElement) => {
+		const { path, eraser } = move;
 
-			if (!ctx || !path.length) {
-				resolve("bye");
-				return;
-			}
-			const moveOptions = move.options;
+		if (!ctx || !path.length) {
+			return;
+		}
+		const moveOptions = move.options;
 
-			if (moveOptions.shape === "image") {
-				const img = new Image();
-				img.src = move.base64;
-				img.addEventListener("load", () => {
-					ctx?.drawImage(img, path[0][0], path[0][1]);
-					copyCanvasToSmall(); // Assuming this is a valid function
-					resolve("bye");
+		if (moveOptions.shape === "image" && image) {
+			ctx.drawImage(image, path[0][0], path[0][1]);
+		}
+		function rgbaToString(color: RgbaColor): string {
+			return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+		}
+
+		ctx.lineWidth = moveOptions.lineWidth;
+		ctx.strokeStyle = rgbaToString(moveOptions.lineColor); // Convert RgbaColor to CSS
+		if (eraser) {
+			ctx.globalCompositeOperation = "destination-out";
+		} else {
+			ctx.globalCompositeOperation = "source-over"; //fix
+		}
+		switch (moveOptions.shape) {
+			case "line": {
+				ctx.beginPath();
+				path.forEach(([x, y]) => {
+					ctx.lineTo(x, y);
 				});
-				return;
+
+				ctx.stroke();
+				ctx.closePath();
+				break;
 			}
-			function rgbaToString(color: RgbaColor): string {
-				return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
-			}
 
-			ctx.lineWidth = moveOptions.lineWidth;
-			ctx.strokeStyle = rgbaToString(moveOptions.lineColor); // Convert RgbaColor to CSS
-			if (eraser) {
-				ctx.globalCompositeOperation = "destination-out";
-			} else {
-				ctx.globalCompositeOperation = "source-over";
-				// fix;
-			}
-			switch (moveOptions.shape) {
-				case "line": {
-					ctx.beginPath();
-					path.forEach(([x, y]) => {
-						ctx.lineTo(x, y);
-					});
+			case "circle":
+				ctx.beginPath();
+				ctx.arc(path[0][0], path[0][1], move.radius, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.closePath();
+				break;
 
-					ctx.stroke();
-					ctx.closePath();
-					break;
-				}
+			case "rect":
+				ctx.beginPath();
+				ctx.rect(path[0][0], path[0][1], move.width, move.height);
+				ctx.stroke();
+				ctx.closePath();
+				break;
 
-				case "circle":
-					ctx.beginPath();
-					ctx.arc(
-						path[0][0],
-						path[0][1],
-						move.radius,
-						0,
-						2 * Math.PI
-					);
-					ctx.stroke();
-					ctx.closePath();
-					break;
-
-				case "rect":
-					ctx.beginPath();
-					ctx.rect(path[0][0], path[0][1], move.width, move.height);
-					ctx.stroke();
-					ctx.closePath();
-					break;
-
-				default:
-					break;
-			}
-			copyCanvasToSmall();
-			resolve("bye");
-		});
+			default:
+				break;
+		}
+		copyCanvasToSmall();
+	};
 
 	const drawAllMoves = async () => {
 		if (!ctx) return;
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-		for (const move of sortedMoves) {
-			// console.log(sortedMoves);
+		const images = await Promise.all(
+			sortedMoves
+				.filter((move) => move.options.shape === "image")
+				.map((move) => {
+					return new Promise<HTMLImageElement>((resolve) => {
+						const img = new Image();
+						img.src = move.base64;
+						img.id = move.id;
+						img.addEventListener("load", () => resolve(img));
+					});
+				})
+		);
 
-			await drawMove(move);
-		}
+		sortedMoves.forEach((move) => {
+			if (move.options.shape === "image") {
+				const img = images.find((image) => image.id === move.id);
+				if (img) drawMove(move, img);
+			} else drawMove(move);
+		});
+
+		copyCanvasToSmall();
 	};
 
 	useEffect(() => {
@@ -139,11 +138,16 @@ export const useMovesHandlers = () => {
 	}, [handleAddMyMove]);
 
 	useEffect(() => {
-		console.log(sortedMoves);
 		if (prevMovesLength >= sortedMoves.length || !prevMovesLength) {
 			drawAllMoves();
 		} else {
-			drawMove(sortedMoves[sortedMoves.length - 1]);
+			const lastMove = sortedMoves[sortedMoves.length - 1];
+
+			if (lastMove.options.shape === "image") {
+				const img = new Image();
+				img.src = lastMove.base64;
+				img.addEventListener("load", () => drawMove(lastMove, img));
+			} else drawMove(lastMove);
 		}
 		return () => {
 			prevMovesLength = sortedMoves.length;

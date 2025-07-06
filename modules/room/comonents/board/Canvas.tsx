@@ -24,7 +24,7 @@ const Canvas = () => {
 	const [dragging, setDragging] = useState(false);
 	const [, setMovedMiniMap] = useState(false);
 	const { width, height } = useViewportSize();
-	const { drawAllMoves, handleUndo } = useMovesHandlers();
+	const { handleUndo } = useMovesHandlers();
 	const room = useRoom();
 	// console.log("room", room);
 
@@ -36,13 +36,10 @@ const Canvas = () => {
 		}
 	});
 
-	// const x = useMotionValue(0);
-	// const y = useMotionValue(0);
-
 	const { x, y } = useBoardPosition();
 
 	const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } =
-		useDraw(dragging, drawAllMoves);
+		useDraw(dragging);
 
 	useEffect(() => {
 		const newCtx = canvasRef.current?.getContext("2d");
@@ -64,12 +61,6 @@ const Canvas = () => {
 	}, [dragging, handleUndo, undoRef, canvasRef]);
 
 	useSocketDraw(ctx, drawing);
-	// useEffect(() => {
-	// 	if (ctx) {
-	// 		drawAllMoves(ctx, room, options);
-	// 		copyCanvasToSmall();
-	// 	}
-	// }, [ctx, room, options]);
 	useEffect(() => {
 		if (ctx) socket.emit("joined_room");
 	}, [ctx]);

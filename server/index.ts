@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 
 import {} from "@/common/types/global";
 import { socket } from "@/common/lib/socket";
+import { uuid } from "uuidv4";
 
 const port = parseInt(process.env.PORT || "3000", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -129,6 +130,7 @@ nextApp.prepare().then(async () => {
 		socket.on("draw", (move) => {
 			const roomId = getRoomId();
 			const timestamp = Date.now();
+			move.id = uuid();
 			addMove(roomId, socket.id, { ...move, timestamp });
 			io.to(socket.id).emit("your_move", { ...move, timestamp });
 			socket.broadcast
