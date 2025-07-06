@@ -38,6 +38,7 @@ const RoomContextProvider = ({ children }: { children: ReactNode }) => {
 	const y = useMotionValue(0);
 
 	const undoRef = useRef<HTMLButtonElement>(null);
+	const redoRef = useRef<HTMLButtonElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const bgRef = useRef<HTMLCanvasElement>(null);
 	const minimapRef = useRef<HTMLCanvasElement>(null);
@@ -115,6 +116,7 @@ const RoomContextProvider = ({ children }: { children: ReactNode }) => {
 				y,
 				bgRef,
 				undoRef,
+				redoRef,
 				canvasRef,
 				minimapRef,
 				moveImage,

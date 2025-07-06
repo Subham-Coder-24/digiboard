@@ -6,7 +6,7 @@ import { socket } from "@/common/lib/socket";
 import { getPos } from "@/common/lib/getPos";
 import { drawCircle, drawLine, drawRect } from "../helpers/Canvas.helpers";
 import { useRefs } from "./useRefs";
-import { useSavedMoves } from "@/common/recoil/savedMoves";
+import { useSetSavedMoves } from "@/common/recoil/savedMoves";
 
 let tempMoves: [number, number][] = [];
 
@@ -18,7 +18,7 @@ let tempImageData: ImageData | undefined;
 export const useDraw = (blocked: boolean) => {
 	const room = useRoom();
 	const { canvasRef } = useRefs();
-	const { clearSavedMoves } = useSavedMoves();
+	const { clearSavedMoves } = useSetSavedMoves();
 
 	const [drawing, setDrawing] = useState(false);
 	const boardPosition = useBoardPosition();

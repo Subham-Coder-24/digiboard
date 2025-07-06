@@ -3,14 +3,15 @@ import { HiOutlineDownload } from "react-icons/hi";
 import ColorPicker from "./ColorPicker";
 import LineWidthPicker from "./LineWidthPicker";
 import Eraser from "./Eraser";
-import { FaUndo } from "react-icons/fa";
+
 import ShapeSelector from "./ShapeSelector";
 import { useRefs } from "../../hooks/useRefs";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import ImagePicker from "./ImagePicker";
+import HistoryBtns from "./HistoryBtns";
 
 const ToolBar = () => {
-	const { canvasRef, bgRef, undoRef } = useRefs();
+	const { canvasRef, bgRef } = useRefs();
 	const handleDownload = () => {
 		const canvas = document.createElement("canvas");
 		canvas.width = CANVAS_SIZE.width;
@@ -33,9 +34,7 @@ const ToolBar = () => {
 			style={{ transform: "translateY(-50%)" }}
 			className="absolute left-10 top-[50%] z-50 flex flex-col items-center gap-5 rounded-lg bg-zinc-900 p-5 text-white"
 		>
-			<button className="test-xl" ref={undoRef}>
-				<FaUndo />
-			</button>
+			<HistoryBtns />
 			<div className="h-px w-full bg-white" />
 			<ColorPicker />
 			<ShapeSelector />

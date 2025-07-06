@@ -24,11 +24,10 @@ const Canvas = () => {
 	const [dragging, setDragging] = useState(false);
 	const [, setMovedMiniMap] = useState(false);
 	const { width, height } = useViewportSize();
-	const { handleUndo } = useMovesHandlers();
+	const { handleUndo, handleRedo } = useMovesHandlers();
 	const room = useRoom();
-	// console.log("room", room);
 
-	const { canvasRef, bgRef, undoRef } = useRefs();
+	const { canvasRef, bgRef, undoRef, redoRef } = useRefs();
 
 	useKeyPressEvent("Control", (e) => {
 		if (e?.ctrlKey && !dragging) {
@@ -53,12 +52,15 @@ const Canvas = () => {
 
 		window.addEventListener("keyup", handleKeyUp);
 		const undoBtn = undoRef.current;
+		const redoBtn = redoRef.current;
 		undoBtn?.addEventListener("click", handleUndo);
+		redoBtn?.addEventListener("click", handleRedo);
 		return () => {
 			window.removeEventListener("keyup", handleKeyUp);
 			undoBtn?.removeEventListener("click", handleUndo);
+			redoBtn?.removeEventListener("click", handleRedo);
 		};
-	}, [dragging, handleUndo, undoRef, canvasRef]);
+	}, [dragging, handleUndo, handleRedo, undoRef, redoRef, canvasRef]);
 
 	useSocketDraw(ctx, drawing);
 	useEffect(() => {
