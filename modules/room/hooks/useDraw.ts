@@ -7,6 +7,7 @@ import { getPos } from "@/common/lib/getPos";
 import { drawCircle, drawLine, drawRect } from "../helpers/Canvas.helpers";
 import { useRefs } from "./useRefs";
 import { useSetSavedMoves } from "@/common/recoil/savedMoves";
+import { useSetSelection } from "@/common/recoil/options/options.hooks";
 
 let tempMoves: [number, number][] = [];
 
@@ -19,6 +20,7 @@ export const useDraw = (blocked: boolean) => {
 	const room = useRoom();
 	const { canvasRef } = useRefs();
 	const { clearSavedMoves } = useSetSavedMoves();
+	const { setSelection } = useSetSelection();
 
 	const [drawing, setDrawing] = useState(false);
 	const boardPosition = useBoardPosition();
@@ -81,6 +83,19 @@ export const useDraw = (blocked: boolean) => {
 		setDrawing(false);
 		ctx.closePath();
 
+		if (options.mode === "select") {
+			drawAndSet(); // Assumes this function draws something based on selection
+			const x = tempMoves[0][0];
+			const y = tempMoves[0][1];
+
+			const width = tempMoves[tempMoves.length - 1][0] - x;
+			const height = tempMoves[tempMoves.length - 1][1] - y;
+
+			if (width !== 0 && height !== 0) {
+				setSelection({ x, y, width, height });
+			}
+		}
+
 		const move: Move = {
 			rect: {
 				...tempSize,
@@ -101,14 +116,11 @@ export const useDraw = (blocked: boolean) => {
 		tempMoves = [];
 		tempCircle = { cX: 0, cY: 0, radiusX: 0, radiusY: 0 };
 		tempSize = { width: 0, height: 0 };
-		if (options.mode === "select") {
-			drawAndSet();
-			tempImageData = undefined;
-			return;
-		}
 		tempImageData = undefined;
-		socket.emit("draw", move);
-		clearSavedMoves();
+		if (options.mode !== "select") {
+			socket.emit("draw", move);
+			clearSavedMoves();
+		}
 	};
 
 	const handleDraw = (x: number, y: number, shift?: boolean) => {

@@ -5,16 +5,17 @@ import { BsPencilFill } from "react-icons/bs";
 import { FaEraser } from "react-icons/fa";
 
 import { useOptions } from "@/common/recoil/options";
+import { useSetSelection } from "@/common/recoil/options/options.hooks";
 
 const ModePicker = () => {
 	const [options, setOptions] = useOptions();
-	// const { clearSelection } = useSetSelection();
+	const { clearSelection } = useSetSelection();
 
-	// useEffect(() => {
-	// 	clearSelection();
+	useEffect(() => {
+		clearSelection();
 
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [options.mode]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [options.mode]);
 
 	return (
 		<>

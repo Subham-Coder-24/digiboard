@@ -9,6 +9,7 @@ export const optionsAtom = atom<CtxOptions>({
 		lineWidth: 5,
 		mode: "draw",
 		shape: "line",
+		selection: null,
 	},
 });
 

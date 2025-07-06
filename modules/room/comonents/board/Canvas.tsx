@@ -18,9 +18,11 @@ import { useDraw } from "../../hooks/useDraw";
 import Background from "./Background";
 import { useRefs } from "../../hooks/useRefs";
 import { useMovesHandlers } from "../../hooks/useMovesHandlers";
+import { useCtx } from "../../hooks/useCtx";
 
 const Canvas = () => {
-	const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+	const ctx = useCtx();
+	// const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 	const [dragging, setDragging] = useState(false);
 	const [, setMovedMiniMap] = useState(false);
 	const { width, height } = useViewportSize();
@@ -41,9 +43,6 @@ const Canvas = () => {
 		useDraw(dragging);
 
 	useEffect(() => {
-		const newCtx = canvasRef.current?.getContext("2d");
-		if (newCtx) setCtx(newCtx);
-
 		const handleKeyUp = (e: KeyboardEvent) => {
 			if (e.ctrlKey && dragging) {
 				setDragging(false);
@@ -62,7 +61,7 @@ const Canvas = () => {
 		};
 	}, [dragging, handleUndo, handleRedo, undoRef, redoRef, canvasRef]);
 
-	useSocketDraw(ctx, drawing);
+	useSocketDraw(drawing);
 	useEffect(() => {
 		if (ctx) socket.emit("joined_room");
 	}, [ctx]);

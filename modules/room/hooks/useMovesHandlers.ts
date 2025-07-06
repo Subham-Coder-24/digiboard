@@ -3,6 +3,8 @@ import { socket } from "@/common/lib/socket";
 import { useMyMoves, useRoom } from "@/common/recoil/room";
 import { useRefs } from "./useRefs";
 import { useSetSavedMoves } from "@/common/recoil/savedMoves";
+import { useCtx } from "./useCtx";
+import { useSelection } from "./useSelection";
 
 let prevMovesLength = 0;
 
@@ -10,13 +12,9 @@ export const useMovesHandlers = () => {
 	const { canvasRef, minimapRef, bgRef } = useRefs();
 	const room = useRoom();
 	const { handleAddMyMove, handleRemoveMyMove } = useMyMoves();
-	const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
 	const { addSavedMove, removeSavedMove } = useSetSavedMoves();
 
-	useEffect(() => {
-		const newCtx = canvasRef.current.getContext("2d");
-		if (newCtx) setCtx(newCtx);
-	}, [canvasRef]);
+	const ctx = useCtx();
 	const sortedMoves = useMemo(() => {
 		const { usersMoves, movesWithoutUser, myMoves } = room;
 
@@ -134,6 +132,7 @@ export const useMovesHandlers = () => {
 
 		copyCanvasToSmall();
 	};
+	useSelection(drawAllMoves);
 
 	useEffect(() => {
 		socket.on("your_move", (move) => {

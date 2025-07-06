@@ -22,9 +22,14 @@ export declare global {
 	interface CtxOptions {
 		lineWidth: number;
 		lineColor: RgbaColor;
-		erase: boolean;
 		shape: Shape;
 		mode: CtxMode;
+		selection: {
+			x: number;
+			y: number;
+			width: number;
+			height: number;
+		} | null;
 	}
 	// combining path and option in one inteface
 	interface Move {
