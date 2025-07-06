@@ -9,6 +9,7 @@ import { useRefs } from "../../hooks/useRefs";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import ImagePicker from "./ImagePicker";
 import HistoryBtns from "./HistoryBtns";
+import ModePicker from "./ModePicker";
 
 const ToolBar = () => {
 	const { canvasRef, bgRef } = useRefs();
@@ -40,13 +41,11 @@ const ToolBar = () => {
 			<ShapeSelector />
 			<LineWidthPicker />
 			<ImagePicker />
-			<Eraser />
+			<ModePicker />
 			<button className="text-xl">
 				<BsFillImageFill />
 			</button>
-			<button className="text-xl">
-				<BsThreeDots />
-			</button>
+
 			<button className="text-xl" onClick={handleDownload}>
 				<HiOutlineDownload />
 			</button>

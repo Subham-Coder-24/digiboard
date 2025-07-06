@@ -7,7 +7,7 @@ export const optionsAtom = atom<CtxOptions>({
 	default: {
 		lineColor: { r: 0, g: 0, b: 0, a: 1 },
 		lineWidth: 5,
-		erase: false,
+		mode: "draw",
 		shape: "line",
 	},
 });

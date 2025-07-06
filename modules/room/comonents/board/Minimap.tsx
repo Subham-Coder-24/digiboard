@@ -40,10 +40,10 @@ const MiniMap = ({
 
 	return (
 		<div
-			className="absolute right-10 top-10 z-30 overflow-hidden rounded-lg shadow-lg bg-zinc-50"
+			className="absolute right-2 top-2 z-30 overflow-hidden rounded-lg shadow-lg bg-zinc-50"
 			style={{
-				width: CANVAS_SIZE.width / 7,
-				height: CANVAS_SIZE.height / 7,
+				width: CANVAS_SIZE.width / 15,
+				height: CANVAS_SIZE.height / 15,
 			}}
 			ref={containerRef}
 		>
@@ -62,8 +62,8 @@ const MiniMap = ({
 				onDragEnd={() => setMovedMinimap(false)}
 				className="absolute top-0 left-0 cursor-grab rounded-lg border-2 border-red-500"
 				style={{
-					width: width / 7,
-					height: height / 7,
+					width: width / 15,
+					height: height / 15,
 					x: miniX,
 					y: miniY,
 				}}

@@ -24,6 +24,7 @@ export declare global {
 		lineColor: RgbaColor;
 		erase: boolean;
 		shape: Shape;
+		mode: CtxMode;
 	}
 	// combining path and option in one inteface
 	interface Move {

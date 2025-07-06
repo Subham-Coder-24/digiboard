@@ -32,23 +32,17 @@ export const drawCircle = (
 ) => {
 	ctx.beginPath();
 
-	const cX = (x + from[0]) / 2;
-	const cY = (y + from[1]) / 2;
+	const { width, height } = getWidthAndHeight(x, y, from, shift);
 
-	let radiusX = 0;
-	let radiusY = 0;
-
-	if (shift) {
-		const d = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
-		radiusX = d / Math.sqrt(2) / 2;
-		radiusY = d / Math.sqrt(2) / 2;
-	} else {
-		radiusX = Math.abs(cX - from[0]);
-		radiusY = Math.abs(cY - from[1]);
-	}
+	const cX = from[0] + width / 2;
+	const cY = from[1] + height / 2;
+	const radiusX = Math.abs(width / 2);
+	const radiusY = Math.abs(height / 2);
 
 	ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+
 	ctx.stroke();
+	ctx.fill();
 	ctx.closePath();
 
 	return { cX, cY, radiusX, radiusY };

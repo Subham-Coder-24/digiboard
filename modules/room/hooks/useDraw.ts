@@ -42,7 +42,9 @@ export const useDraw = (blocked: boolean) => {
 			ctx.lineCap = "round";
 			ctx.lineWidth = options.lineWidth;
 			ctx.strokeStyle = rgbaToString(options.lineColor);
-			if (options.erase) ctx.globalCompositeOperation = "destination-out";
+			// ctx.fillStyle = bg.mode === "dark" ? "#222" : "#fff";
+			if (options.mode === "eraser")
+				ctx.globalCompositeOperation = "destination-out";
 			else {
 				ctx.globalCompositeOperation = "source-over";
 			}
@@ -65,10 +67,11 @@ export const useDraw = (blocked: boolean) => {
 
 		setDrawing(true);
 		setupCtxOptions();
-
-		ctx.beginPath();
-		ctx.lineTo(finalX, finalY);
-		ctx.stroke();
+		if (options.shape === "line" && options.mode !== "select") {
+			ctx.beginPath();
+			ctx.lineTo(finalX, finalY);
+			ctx.stroke();
+		}
 		tempMoves.push([finalX, finalY]);
 	};
 
@@ -91,13 +94,18 @@ export const useDraw = (blocked: boolean) => {
 			path: tempMoves,
 			options,
 			timestamp: 0,
-			eraser: options.erase,
+			eraser: options.mode == "eraser",
 			id: "",
 		};
 
 		tempMoves = [];
 		tempCircle = { cX: 0, cY: 0, radiusX: 0, radiusY: 0 };
 		tempSize = { width: 0, height: 0 };
+		if (options.mode === "select") {
+			drawAndSet();
+			tempImageData = undefined;
+			return;
+		}
 		tempImageData = undefined;
 		socket.emit("draw", move);
 		clearSavedMoves();
@@ -108,7 +116,17 @@ export const useDraw = (blocked: boolean) => {
 			return;
 		}
 		const [finalX, finalY] = [getPos(x, movedX), getPos(y, movedY)];
+		drawAndSet(); //fix
 
+		if (options.mode === "select") {
+			ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+			drawRect(ctx, tempMoves[0], finalX, finalY, false, true);
+			tempMoves.push([finalX, finalY]);
+
+			setupCtxOptions();
+
+			return;
+		}
 		switch (options.shape) {
 			case "line":
 				if (shift) {
