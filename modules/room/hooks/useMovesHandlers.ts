@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { getStringFromRgba } from "@/common/lib/rgba";
 import { socket } from "@/common/lib/socket";
 import { useMyMoves, useRoom } from "@/common/recoil/room";
 import { useRefs } from "./useRefs";
+import { useSavedMoves } from "@/common/recoil/savedMoves";
 
 let prevMovesLength = 0;
 
@@ -11,6 +11,7 @@ export const useMovesHandlers = () => {
 	const room = useRoom();
 	const { handleAddMyMove, handleRemoveMyMove } = useMyMoves();
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+	const { addSavedMove, removeSavedMove } = useSavedMoves();
 
 	useEffect(() => {
 		const newCtx = canvasRef.current.getContext("2d");
@@ -162,14 +163,28 @@ export const useMovesHandlers = () => {
 
 	const handleUndo = () => {
 		if (ctx) {
-			handleRemoveMyMove();
-			socket.emit("undo");
+			const move = handleRemoveMyMove();
+			if (move) {
+				addSavedMove(move);
+				socket.emit("undo");
+			}
+		}
+	};
+	const handleRedo = () => {
+		if (ctx) {
+			const move = removeSavedMove();
+
+			if (move) {
+				socket.emit("draw", move);
+			}
 		}
 	};
 	useEffect(() => {
 		const handleUndoRedoKeyboard = (e: KeyboardEvent) => {
 			if (e.key === "z" && e.ctrlKey) {
 				handleUndo();
+			} else if (e.key === "y" && e.ctrlKey) {
+				handleRedo();
 			}
 		};
 
@@ -178,7 +193,7 @@ export const useMovesHandlers = () => {
 		return () => {
 			document.removeEventListener("keydown", handleUndoRedoKeyboard);
 		};
-	}, [handleUndo]);
+	}, [handleUndo, handleRedo]);
 
 	return {
 		drawAllMoves,
