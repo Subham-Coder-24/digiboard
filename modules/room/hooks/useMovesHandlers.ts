@@ -82,18 +82,24 @@ export const useMovesHandlers = () => {
 			}
 
 			case "circle":
+				const { cX, cY, radiusX, radiusY } = move.circle;
+
 				ctx.beginPath();
-				ctx.arc(path[0][0], path[0][1], move.radius, 0, 2 * Math.PI);
+				ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
 				ctx.stroke();
+				ctx.fill(); //fix
 				ctx.closePath();
 				break;
 
-			case "rect":
+			case "rect": {
+				const { width, height } = move.rect;
 				ctx.beginPath();
-				ctx.rect(path[0][0], path[0][1], move.width, move.height);
+				ctx.rect(path[0][0], path[0][1], width, height);
 				ctx.stroke();
+				ctx.fill();
 				ctx.closePath();
 				break;
+			}
 
 			default:
 				break;
@@ -111,7 +117,7 @@ export const useMovesHandlers = () => {
 				.map((move) => {
 					return new Promise<HTMLImageElement>((resolve) => {
 						const img = new Image();
-						img.src = move.base64;
+						img.src = move.img.base64;
 						img.id = move.id;
 						img.addEventListener("load", () => resolve(img));
 					});
@@ -145,7 +151,7 @@ export const useMovesHandlers = () => {
 
 			if (lastMove.options.shape === "image") {
 				const img = new Image();
-				img.src = lastMove.base64;
+				img.src = lastMove.img.base64;
 				img.addEventListener("load", () => drawMove(lastMove, img));
 			} else drawMove(lastMove);
 		}

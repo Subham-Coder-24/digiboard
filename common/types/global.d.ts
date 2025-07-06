@@ -27,14 +27,23 @@ export declare global {
 	}
 	// combining path and option in one inteface
 	interface Move {
-		radius: number;
-		width: number;
-		height: number;
+		circle: {
+			cX: number;
+			cY: number;
+			radiusX: number;
+			radiusY: number;
+		};
+		rect: {
+			width: number;
+			height: number;
+		};
+		img: {
+			base64: string;
+		};
 		path: [number, number][];
 		options: CtxOptions;
 		timestamp: number;
 		eraser: boolean;
-		base64: string;
 		id: string;
 	}
 	interface Message {
