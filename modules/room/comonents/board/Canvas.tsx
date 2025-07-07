@@ -26,7 +26,7 @@ const Canvas = () => {
 	const [dragging, setDragging] = useState(false);
 	const [, setMovedMiniMap] = useState(false);
 	const { width, height } = useViewportSize();
-	const { handleUndo, handleRedo } = useMovesHandlers();
+
 	const room = useRoom();
 
 	const { canvasRef, bgRef, undoRef, redoRef } = useRefs();
@@ -38,9 +38,16 @@ const Canvas = () => {
 	});
 
 	const { x, y } = useBoardPosition();
-
-	const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } =
-		useDraw(dragging);
+	//why
+	const {
+		handleDraw,
+		handleEndDrawing,
+		handleStartDrawing,
+		drawing,
+		clearOnYourMove,
+	} = useDraw(dragging);
+	useSocketDraw(drawing);
+	const { handleUndo, handleRedo } = useMovesHandlers(clearOnYourMove);
 
 	useEffect(() => {
 		const handleKeyUp = (e: KeyboardEvent) => {
@@ -61,7 +68,6 @@ const Canvas = () => {
 		};
 	}, [dragging, handleUndo, handleRedo, undoRef, redoRef, canvasRef]);
 
-	useSocketDraw(drawing);
 	useEffect(() => {
 		if (ctx) socket.emit("joined_room");
 	}, [ctx]);

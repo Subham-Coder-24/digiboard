@@ -5,10 +5,11 @@ import { useRefs } from "./useRefs";
 import { useSetSavedMoves } from "@/common/recoil/savedMoves";
 import { useCtx } from "./useCtx";
 import { useSelection } from "./useSelection";
+import { getStringFromRgba } from "@/common/lib/rgba";
 
 let prevMovesLength = 0;
 
-export const useMovesHandlers = () => {
+export const useMovesHandlers = (clearOnYourMove: () => void) => {
 	const { canvasRef, minimapRef, bgRef } = useRefs();
 	const room = useRoom();
 	const { handleAddMyMove, handleRemoveMyMove } = useMyMoves();
@@ -57,12 +58,10 @@ export const useMovesHandlers = () => {
 		if (moveOptions.shape === "image" && image) {
 			ctx.drawImage(image, path[0][0], path[0][1]);
 		}
-		function rgbaToString(color: RgbaColor): string {
-			return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
-		}
 
 		ctx.lineWidth = moveOptions.lineWidth;
-		ctx.strokeStyle = rgbaToString(moveOptions.lineColor); // Convert RgbaColor to CSS
+		ctx.strokeStyle = getStringFromRgba(moveOptions.lineColor);
+		ctx.fillStyle = getStringFromRgba(moveOptions.fillColor);
 		if (moveOptions.mode === "eraser") {
 			ctx.globalCompositeOperation = "destination-out";
 		} else {
@@ -93,14 +92,9 @@ export const useMovesHandlers = () => {
 			case "rect": {
 				const { width, height } = move.rect;
 				ctx.beginPath();
-				if (move.rect.fill) {
-					ctx?.fillRect(path[0][0], path[0][1], width, height);
-					ctx?.fill();
-				} else {
-					ctx.rect(path[0][0], path[0][1], width, height);
-					ctx.stroke();
-				}
-				// ctx.fill();
+				ctx.rect(path[0][0], path[0][1], width, height);
+				ctx.stroke();
+				ctx.fill();
 				ctx.closePath();
 				break;
 			}
@@ -141,12 +135,13 @@ export const useMovesHandlers = () => {
 
 	useEffect(() => {
 		socket.on("your_move", (move) => {
+			clearOnYourMove();
 			handleAddMyMove(move);
 		});
 		return () => {
 			socket.off("your_move");
 		};
-	}, [handleAddMyMove]);
+	}, [handleAddMyMove, clearOnYourMove]);
 
 	useEffect(() => {
 		if (prevMovesLength >= sortedMoves.length || !prevMovesLength) {

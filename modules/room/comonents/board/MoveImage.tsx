@@ -26,29 +26,16 @@ const MoveImage = () => {
 		];
 
 		const move: Move = {
-			rect: {
-				width: 0,
-				height: 0,
-			},
-			circle: {
-				cX: 0,
-				cY: 0,
-				radiusX: 0,
-				radiusY: 0,
-			},
+			...DEFAULT_MOVE,
 			img: {
 				base64: moveImage,
 			},
 			path: [[finalX, finalY]],
 			options: {
-				lineWidth: 1,
-				lineColor: { r: 0, g: 0, b: 0, a: 1 },
-				mode: "draw",
+				...DEFAULT_MOVE.options,
 				shape: "image",
 				selection: null,
 			},
-			timestamp: 0,
-			id: "",
 		};
 
 		socket.emit("draw", move);

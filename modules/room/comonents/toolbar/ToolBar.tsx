@@ -1,18 +1,25 @@
-import { BsFillImageFill, BsThreeDots } from "react-icons/bs";
 import { HiOutlineDownload } from "react-icons/hi";
 import ColorPicker from "./ColorPicker";
 import LineWidthPicker from "./LineWidthPicker";
-import Eraser from "./Eraser";
-
+import { ImExit } from "react-icons/im";
 import ShapeSelector from "./ShapeSelector";
 import { useRefs } from "../../hooks/useRefs";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import ImagePicker from "./ImagePicker";
 import HistoryBtns from "./HistoryBtns";
 import ModePicker from "./ModePicker";
+import { useRouter } from "next/router";
+import { IoIosShareAlt } from "react-icons/io";
+import ShareModal from "../../modals/ShareModal";
+import { useModal } from "@/common/recoil/modal";
 
 const ToolBar = () => {
+	const router = useRouter();
+	const handleExit = () => router.push("/");
 	const { canvasRef, bgRef } = useRefs();
+	const { openModal } = useModal();
+	const handleShare = () => openModal(<ShareModal />);
+
 	const handleDownload = () => {
 		const canvas = document.createElement("canvas");
 		canvas.width = CANVAS_SIZE.width;
@@ -40,14 +47,18 @@ const ToolBar = () => {
 			<ColorPicker />
 			<ShapeSelector />
 			<LineWidthPicker />
-			<ImagePicker />
 			<ModePicker />
-			<button className="text-xl">
-				<BsFillImageFill />
-			</button>
+			<ImagePicker />
 
+			<div className="h-px w-full bg-white" />
+			<button className="btn-icon text-2xl" onClick={handleShare}>
+				<IoIosShareAlt />
+			</button>
 			<button className="text-xl" onClick={handleDownload}>
 				<HiOutlineDownload />
+			</button>
+			<button className="btn-icon text-xl" onClick={handleExit}>
+				<ImExit />
 			</button>
 		</div>
 	);

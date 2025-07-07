@@ -34,20 +34,6 @@ const ModePicker = () => {
 			</button>
 
 			<button
-				className={`btn-icon text-xl ${
-					options.mode === "eraser" && "bg-green-400"
-				}`}
-				onClick={() => {
-					setOptions((prev) => ({
-						...prev,
-						mode: "eraser",
-					}));
-				}}
-			>
-				<FaEraser />
-			</button>
-
-			<button
 				className={`btn-icon text-2xl ${
 					options.mode === "select" && "bg-green-400"
 				}`}
@@ -59,6 +45,20 @@ const ModePicker = () => {
 				}}
 			>
 				<AiOutlineSelect />
+			</button>
+
+			<button
+				className={`btn-icon text-xl ${
+					options.mode === "eraser" && "bg-green-400"
+				}`}
+				onClick={() => {
+					setOptions((prev) => ({
+						...prev,
+						mode: "eraser",
+					}));
+				}}
+			>
+				<FaEraser />
 			</button>
 		</>
 	);

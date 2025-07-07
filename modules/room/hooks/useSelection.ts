@@ -93,14 +93,8 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
 				console.log("deleted");
 
 				const move: Move = {
-					circle: {
-						cX: 0,
-						cY: 0,
-						radiusX: 0,
-						radiusY: 0,
-					},
+					...DEFAULT_MOVE,
 					rect: {
-						fill: true,
 						width,
 						height,
 					},
@@ -109,12 +103,8 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
 						...options,
 						shape: "rect",
 						mode: "eraser",
+						fillColor: { r: 0, g: 0, b: 0, a: 1 },
 					},
-					id: "",
-					img: {
-						base64: "",
-					},
-					timestamp: 0,
 				};
 				socket.emit("draw", move);
 			}

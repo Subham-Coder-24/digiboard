@@ -3,12 +3,12 @@ import { RgbaColor } from "react-colorful";
 export declare global {
 	type Shape = "line" | "circle" | "rect" | "image";
 	type CtxMode = "eraser" | "draw" | "select";
-	type RgbaColor = {
-		r: number;
-		g: number;
-		b: number;
-		a: number;
-	};
+	// type RgbaColor = {
+	// 	r: number;
+	// 	g: number;
+	// 	b: number;
+	// 	a: number;
+	// };
 	type Room = {
 		usersMoves: Map<string, Move[]>;
 		drawed: Move[];
@@ -22,6 +22,7 @@ export declare global {
 	interface CtxOptions {
 		lineWidth: number;
 		lineColor: RgbaColor;
+		fillColor: RgbaColor;
 		shape: Shape;
 		mode: CtxMode;
 		selection: {
@@ -42,7 +43,6 @@ export declare global {
 		rect: {
 			width: number;
 			height: number;
-			fill?: boolean;
 		};
 		img: {
 			base64: string;
