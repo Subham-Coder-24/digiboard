@@ -93,6 +93,8 @@ export const useMyMoves = () => {
 	const [room, setRoom] = useRecoilState(roomAtom);
 
 	const handleAddMyMove = (move: Move) => {
+		console.log("ok--", move);
+
 		setRoom((prev) => ({
 			...prev,
 			myMoves: [...prev.myMoves, move],

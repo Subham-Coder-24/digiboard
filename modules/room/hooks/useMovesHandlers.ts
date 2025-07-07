@@ -47,7 +47,7 @@ export const useMovesHandlers = () => {
 		}
 	};
 	const drawMove = (move: Move, image?: HTMLImageElement) => {
-		const { path, eraser } = move;
+		const { path } = move;
 
 		if (!ctx || !path.length) {
 			return;
@@ -63,7 +63,7 @@ export const useMovesHandlers = () => {
 
 		ctx.lineWidth = moveOptions.lineWidth;
 		ctx.strokeStyle = rgbaToString(moveOptions.lineColor); // Convert RgbaColor to CSS
-		if (eraser) {
+		if (moveOptions.mode === "eraser") {
 			ctx.globalCompositeOperation = "destination-out";
 		} else {
 			ctx.globalCompositeOperation = "source-over"; //fix
@@ -93,9 +93,14 @@ export const useMovesHandlers = () => {
 			case "rect": {
 				const { width, height } = move.rect;
 				ctx.beginPath();
-				ctx.rect(path[0][0], path[0][1], width, height);
-				ctx.stroke();
-				ctx.fill();
+				if (move.rect.fill) {
+					ctx?.fillRect(path[0][0], path[0][1], width, height);
+					ctx?.fill();
+				} else {
+					ctx.rect(path[0][0], path[0][1], width, height);
+					ctx.stroke();
+				}
+				// ctx.fill();
 				ctx.closePath();
 				break;
 			}

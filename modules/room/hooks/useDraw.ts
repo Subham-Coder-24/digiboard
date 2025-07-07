@@ -1,4 +1,4 @@
-import { useRoom } from "@/common/recoil/room";
+import { useMyMoves, useRoom } from "@/common/recoil/room";
 import { useBoardPosition } from "./useBoardPosition";
 import { useEffect, useState } from "react";
 import { useOptionsValue } from "@/common/recoil/options";
@@ -20,7 +20,8 @@ export const useDraw = (blocked: boolean) => {
 	const room = useRoom();
 	const { canvasRef } = useRefs();
 	const { clearSavedMoves } = useSetSavedMoves();
-	const { setSelection } = useSetSelection();
+	const { setSelection, clearSelection } = useSetSelection();
+	const { handleAddMyMove } = useMyMoves();
 
 	const [drawing, setDrawing] = useState(false);
 	const boardPosition = useBoardPosition();
@@ -82,7 +83,7 @@ export const useDraw = (blocked: boolean) => {
 
 		setDrawing(false);
 		ctx.closePath();
-
+		// let addMove = true;
 		if (options.mode === "select") {
 			drawAndSet(); // Assumes this function draws something based on selection
 			const x = tempMoves[0][0];
@@ -93,6 +94,9 @@ export const useDraw = (blocked: boolean) => {
 
 			if (width !== 0 && height !== 0) {
 				setSelection({ x, y, width, height });
+			} else {
+				// clearSelection();
+				// addMove = false;
 			}
 		}
 
@@ -109,7 +113,6 @@ export const useDraw = (blocked: boolean) => {
 			path: tempMoves,
 			options,
 			timestamp: 0,
-			eraser: options.mode == "eraser",
 			id: "",
 		};
 
@@ -121,6 +124,7 @@ export const useDraw = (blocked: boolean) => {
 			socket.emit("draw", move);
 			clearSavedMoves();
 		}
+		// else if (addMove) handleAddMyMove(move);
 	};
 
 	const handleDraw = (x: number, y: number, shift?: boolean) => {
@@ -131,11 +135,15 @@ export const useDraw = (blocked: boolean) => {
 		drawAndSet(); //fix
 
 		if (options.mode === "select") {
+			console.log("handleDraw");
+
 			ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+
 			drawRect(ctx, tempMoves[0], finalX, finalY, false, true);
+			ctx.fillStyle = "rgba(0, 0, 0)";
 			tempMoves.push([finalX, finalY]);
 
-			setupCtxOptions();
+			// setupCtxOptions();
 
 			return;
 		}

@@ -42,6 +42,7 @@ export declare global {
 		rect: {
 			width: number;
 			height: number;
+			fill?: boolean;
 		};
 		img: {
 			base64: string;
@@ -49,7 +50,6 @@ export declare global {
 		path: [number, number][];
 		options: CtxOptions;
 		timestamp: number;
-		eraser: boolean;
 		id: string;
 	}
 	interface Message {

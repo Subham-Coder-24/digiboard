@@ -47,26 +47,28 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
 			}
 		};
 
-		if (
-			tempSelection.width !== selection?.width ||
-			tempSelection.height !== selection?.height ||
-			tempSelection.x !== selection?.x ||
-			tempSelection.y !== selection?.y
-		)
-			callback();
+		// if (
+		// 	tempSelection.width !== selection?.width ||
+		// 	tempSelection.height !== selection?.height ||
+		// 	tempSelection.x !== selection?.x ||
+		// 	tempSelection.y !== selection?.y
+		// )
+		callback();
 
-		return () => {
-			if (selection) tempSelection = selection;
-		};
+		// return () => {
+		// 	if (selection) tempSelection = selection;
+		// };
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selection, ctx]);
 
 	useEffect(() => {
 		const handleCopySelection = async (e: KeyboardEvent) => {
-			if (e.key === "c" && e.ctrlKey && selection && ctx) {
-				const { x, y, width, height } = selection;
-				const imageData = ctx.getImageData(x, y, width, height);
+			if (!selection) return null;
+			const { x, y, width, height } = selection;
+
+			if (e.key === "c" && (e.ctrlKey || e.metaKey)) {
+				const imageData = ctx?.getImageData(x, y, width, height);
 
 				if (imageData) {
 					const canvas = document.createElement("canvas");
@@ -87,11 +89,40 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
 					}, "image/png");
 				}
 			}
+			if ((e.key === "Delete" || e.key === "Backspace") && selection) {
+				console.log("deleted");
+
+				const move: Move = {
+					circle: {
+						cX: 0,
+						cY: 0,
+						radiusX: 0,
+						radiusY: 0,
+					},
+					rect: {
+						fill: true,
+						width,
+						height,
+					},
+					path: [[x, y]],
+					options: {
+						...options,
+						shape: "rect",
+						mode: "eraser",
+					},
+					id: "",
+					img: {
+						base64: "",
+					},
+					timestamp: 0,
+				};
+				socket.emit("draw", move);
+			}
 		};
 
 		document.addEventListener("keydown", handleCopySelection);
 		return () => {
 			document.removeEventListener("keydown", handleCopySelection);
 		};
-	}, [selection, ctx]);
+	}, [selection, ctx, bgRef, options]);
 };

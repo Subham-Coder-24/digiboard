@@ -45,9 +45,9 @@ const MoveImage = () => {
 				lineColor: { r: 0, g: 0, b: 0, a: 1 },
 				mode: "draw",
 				shape: "image",
+				selection: null,
 			},
 			timestamp: 0,
-			eraser: false,
 			id: "",
 		};
 
