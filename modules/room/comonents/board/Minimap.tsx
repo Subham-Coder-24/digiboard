@@ -22,11 +22,11 @@ const MiniMap = ({
 
 	useEffect(() => {
 		const updateX = (newX: number) => {
-			if (dragging) x.set(-newX * 7);
+			if (dragging) x.set(Math.floor(-newX * 7));
 		};
 
 		const updateY = (newY: number) => {
-			if (dragging) y.set(-newY * 7);
+			if (dragging) y.set(Math.floor(-newY * 7));
 		};
 
 		const unsubscribeX = miniX.onChange(updateX);

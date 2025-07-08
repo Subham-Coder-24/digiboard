@@ -5,34 +5,41 @@ import { motion } from "framer-motion";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 
 import { useBoardPosition } from "../../hooks/useBoardPosition";
+import { useBackground } from "@/common/recoil/background";
 
 const Background = ({ bgRef }: { bgRef: RefObject<HTMLCanvasElement> }) => {
-	// const bg = useBackground();
+	const bg = useBackground();
 	const { x, y } = useBoardPosition();
 
 	useEffect(() => {
 		const ctx = bgRef.current?.getContext("2d");
 
 		if (ctx) {
-			ctx.fillStyle = "#fff";
+			ctx.fillStyle = bg.mode === "dark" ? "#222" : "#fff";
 			ctx.fillRect(0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
-			ctx.lineWidth = 1;
-			ctx.strokeStyle = "#ccc";
-			for (let i = 0; i < CANVAS_SIZE.height; i += 25) {
-				ctx.beginPath();
-				ctx.moveTo(0, i);
-				ctx.lineTo(ctx.canvas.width, i);
-				ctx.stroke();
-			}
 
-			for (let i = 0; i < CANVAS_SIZE.width; i += 25) {
-				ctx.beginPath();
-				ctx.moveTo(i, 0);
-				ctx.lineTo(i, ctx.canvas.height);
-				ctx.stroke();
+			document.body.style.backgroundColor =
+				bg.mode === "dark" ? "#222" : "#fff";
+
+			if (bg.lines) {
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = bg.mode === "dark" ? "#444" : "#ddd";
+				for (let i = 0; i < CANVAS_SIZE.height; i += 25) {
+					ctx.beginPath();
+					ctx.moveTo(0, i);
+					ctx.lineTo(ctx.canvas.width, i);
+					ctx.stroke();
+				}
+
+				for (let i = 0; i < CANVAS_SIZE.width; i += 25) {
+					ctx.beginPath();
+					ctx.moveTo(i, 0);
+					ctx.lineTo(i, ctx.canvas.height);
+					ctx.stroke();
+				}
 			}
 		}
-	}, [bgRef]);
+	}, [bgRef, bg]);
 
 	return (
 		<motion.canvas

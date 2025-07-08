@@ -25,7 +25,7 @@ export const MousePosition = () => {
 	return (
 		<motion.div
 			ref={ref}
-			className="absolute top-0 left-0 z-50 select-none text-black"
+			className="pointer-events-none absolute top-0 left-0 z-50 select-none transition-colors dark:text-white"
 			animate={{ x: docX + 15, y: docY + 15 }}
 			transition={{ duration: 0.05, ease: "linear" }}
 		>

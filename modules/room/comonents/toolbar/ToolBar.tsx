@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { IoIosShareAlt } from "react-icons/io";
 import ShareModal from "../../modals/ShareModal";
 import { useModal } from "@/common/recoil/modal";
+import BackgroundPicker from "./BackgoundPicker";
 
 const ToolBar = () => {
 	const router = useRouter();
@@ -49,8 +50,8 @@ const ToolBar = () => {
 			<LineWidthPicker />
 			<ModePicker />
 			<ImagePicker />
-
 			<div className="h-px w-full bg-white" />
+			<BackgroundPicker />
 			<button className="btn-icon text-2xl" onClick={handleShare}>
 				<IoIosShareAlt />
 			</button>
