@@ -1,49 +1,73 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { motion, useMotionValue } from "framer-motion";
+
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewportSize } from "@/common/hooks/useViewportSize";
-import { motion, useMotionValue } from "framer-motion";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+
 import { useBoardPosition } from "../../hooks/useBoardPosition";
 import { useRefs } from "../../hooks/useRefs";
-// import { useBoardPosition } from "../hooks/useBoardPosition";
 
-const MiniMap = ({
-	dragging,
-	setMovedMinimap,
-}: {
-	dragging: boolean;
-	setMovedMinimap: Dispatch<SetStateAction<boolean>>;
-}) => {
-	const { x, y } = useBoardPosition();
+const MiniMap = ({ dragging }: { dragging: boolean }) => {
 	const { minimapRef } = useRefs();
-	const containerRef = useRef<HTMLDivElement>(null);
+	const boardPos = useBoardPosition();
 	const { width, height } = useViewportSize();
+
+	const [x, setX] = useState(0);
+	const [y, setY] = useState(0);
+
+	const [draggingMinimap, setDraggingMinimap] = useState(false);
+
+	useEffect(() => {
+		if (!draggingMinimap) {
+			const unsubscribe = boardPos.x.onChange(setX);
+			return unsubscribe;
+		}
+
+		return () => {};
+	}, [boardPos.x, draggingMinimap]);
+
+	useEffect(() => {
+		if (!draggingMinimap) {
+			const unsubscribe = boardPos.y.onChange(setY);
+			return unsubscribe;
+		}
+
+		return () => {};
+	}, [boardPos.y, draggingMinimap]);
+
+	const containerRef = useRef<HTMLDivElement>(null);
+
 	const miniX = useMotionValue(0);
 	const miniY = useMotionValue(0);
 
+	const divider = useMemo(() => {
+		if (width > 1600) return 7;
+		if (width > 1000) return 10;
+		if (width > 600) return 14;
+		return 20;
+	}, [width]);
+
 	useEffect(() => {
-		const updateX = (newX: number) => {
-			if (dragging) x.set(Math.floor(-newX * 7));
-		};
-
-		const updateY = (newY: number) => {
-			if (dragging) y.set(Math.floor(-newY * 7));
-		};
-
-		const unsubscribeX = miniX.onChange(updateX);
-		const unsubscribeY = miniY.onChange(updateY);
+		miniX.onChange((newX) => {
+			if (!dragging) boardPos.x.set(Math.floor(-newX * divider));
+		});
+		miniY.onChange((newY) => {
+			if (!dragging) boardPos.y.set(Math.floor(-newY * divider));
+		});
 
 		return () => {
-			unsubscribeX();
-			unsubscribeY();
+			miniX.clearListeners();
+			miniY.clearListeners();
 		};
-	}, [dragging, miniX, miniY, x, y]);
+	}, [boardPos.x, boardPos.y, divider, dragging, miniX, miniY]);
 
 	return (
 		<div
-			className="absolute right-2 top-2 z-30 overflow-hidden rounded-lg shadow-lg bg-zinc-50"
+			className="absolute right-10 top-10 z-30 overflow-hidden rounded-lg shadow-lg"
 			style={{
-				width: CANVAS_SIZE.width / 15,
-				height: CANVAS_SIZE.height / 15,
+				width: CANVAS_SIZE.width / divider,
+				height: CANVAS_SIZE.height / divider,
 			}}
 			ref={containerRef}
 		>
@@ -58,16 +82,16 @@ const MiniMap = ({
 				dragConstraints={containerRef}
 				dragElastic={0}
 				dragTransition={{ power: 0, timeConstant: 0 }}
-				onDragStart={() => setMovedMinimap((prev) => !prev)}
-				onDragEnd={() => setMovedMinimap(false)}
+				onDragStart={() => setDraggingMinimap(true)}
+				onDragEnd={() => setDraggingMinimap(false)}
 				className="absolute top-0 left-0 cursor-grab rounded-lg border-2 border-red-500"
 				style={{
-					width: width / 15,
-					height: height / 15,
+					width: width / divider,
+					height: height / divider,
 					x: miniX,
 					y: miniY,
 				}}
-				animate={{ x: -x / 7, y: -y / 7 }}
+				animate={{ x: -x / divider, y: -y / divider }}
 				transition={{ duration: 0 }}
 			/>
 		</div>

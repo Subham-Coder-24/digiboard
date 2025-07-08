@@ -11,6 +11,7 @@ export const MousePosition = () => {
 	const { x, y } = useBoardPosition();
 	const ref = useRef<HTMLDivElement>(null);
 	const { docX, docY } = useMouse(ref as React.RefObject<Element>); //check
+	const touchDevice = window.matchMedia("(pointer: coarse)").matches;
 
 	useInterval(() => {
 		if (
@@ -21,6 +22,7 @@ export const MousePosition = () => {
 			prevPosition.current = { x: docX, y: docY };
 		}
 	}, 150);
+	if (touchDevice) return null;
 
 	return (
 		<motion.div
