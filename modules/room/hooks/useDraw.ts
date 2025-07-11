@@ -1,14 +1,14 @@
-import { useMyMoves, useRoom } from "@/common/recoil/room";
+import { useMyMoves } from "@/common/recoil/room";
 import { useBoardPosition } from "./useBoardPosition";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useOptionsValue } from "@/common/recoil/options";
 import { socket } from "@/common/lib/socket";
 import { getPos } from "@/common/lib/getPos";
 import { drawCircle, drawLine, drawRect } from "../helpers/Canvas.helpers";
-import { useRefs } from "./useRefs";
+
 import { useSetSavedMoves } from "@/common/recoil/savedMoves";
 import { useSetSelection } from "@/common/recoil/options/options.hooks";
-import { RgbaColor } from "react-colorful";
+
 import { useCtx } from "./useCtx";
 import { getStringFromRgba } from "@/common/lib/rgba";
 import { DEFAULT_MOVE } from "@/common/constants/defaultMove";
@@ -23,7 +23,9 @@ let tempImageData: ImageData | undefined;
 export const useDraw = (blocked: boolean) => {
 	const boardPosition = useBoardPosition();
 	const { clearSavedMoves } = useSetSavedMoves();
-	const { setSelection } = useSetSelection();
+	const { setSelection, clearSelection } = useSetSelection();
+	const { handleAddMyMove } = useMyMoves();
+
 	const movedX = boardPosition.x;
 	const movedY = boardPosition.y;
 
@@ -83,7 +85,7 @@ export const useDraw = (blocked: boolean) => {
 
 		setDrawing(false);
 		ctx.closePath();
-		// let addMove = true;
+		let addMove = true;
 		if (options.mode === "select" && tempMoves.length) {
 			clearOnYourMove();
 
@@ -96,8 +98,8 @@ export const useDraw = (blocked: boolean) => {
 			if (width !== 0 && height !== 0) {
 				setSelection({ x, y, width, height });
 			} else {
-				// clearSelection();
-				// addMove = false;
+				clearSelection();
+				addMove = false;
 			}
 		}
 
@@ -120,8 +122,7 @@ export const useDraw = (blocked: boolean) => {
 		if (options.mode !== "select") {
 			socket.emit("draw", move);
 			clearSavedMoves();
-		}
-		// else if (addMove) handleAddMyMove(move);
+		} else if (addMove) handleAddMyMove(move);
 	};
 
 	const handleDraw = (x: number, y: number, shift?: boolean) => {

@@ -17,6 +17,8 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
 
 	const ctx = useCtx();
 	const sortedMoves = useMemo(() => {
+		console.log("sortedMoves");
+
 		const { usersMoves, movesWithoutUser, myMoves } = room;
 
 		const moves = [...movesWithoutUser, ...myMoves];
@@ -144,6 +146,8 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
 	}, [handleAddMyMove, clearOnYourMove]);
 
 	useEffect(() => {
+		console.log("useeffect");
+
 		if (prevMovesLength >= sortedMoves.length || !prevMovesLength) {
 			drawAllMoves();
 		} else {

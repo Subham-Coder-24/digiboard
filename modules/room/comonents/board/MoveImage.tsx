@@ -16,8 +16,15 @@ const MoveImage = () => {
 	const { x, y } = useBoardPosition();
 	const { moveImage, setMoveImage } = useMoveImage();
 
-	const imageX = useMotionValue(50);
-	const imageY = useMotionValue(50);
+	const imageX = useMotionValue(moveImage.x || 50);
+	const imageY = useMotionValue(moveImage.y || 50);
+
+	useEffect(() => {
+		if (moveImage.x) imageX.set(moveImage.x);
+		else imageX.set(50);
+		if (moveImage.y) imageY.set(moveImage.y);
+		else imageY.set(50);
+	}, [imageX, imageY, moveImage.x, moveImage.y]);
 
 	const handlePlaceImage = () => {
 		const [finalX, finalY] = [
@@ -28,7 +35,7 @@ const MoveImage = () => {
 		const move: Move = {
 			...DEFAULT_MOVE,
 			img: {
-				base64: moveImage,
+				base64: moveImage.base64,
 			},
 			path: [[finalX, finalY]],
 			options: {
@@ -40,12 +47,12 @@ const MoveImage = () => {
 
 		socket.emit("draw", move);
 
-		setMoveImage("");
+		setMoveImage({ base64: "" });
 		imageX.set(50);
 		imageY.set(50);
 	};
 
-	if (!moveImage) return null;
+	if (!moveImage.base64) return null;
 
 	return (
 		<motion.div
@@ -63,11 +70,17 @@ const MoveImage = () => {
 				>
 					<AiOutlineCheck />
 				</button>
+				<button
+					className="rounded-full bg-gray-200 p-2"
+					onClick={() => setMoveImage({ base64: "" })}
+				>
+					<AiOutlineClose />
+				</button>
 			</div>
 			<img
 				className="pointer-events-none"
 				alt="image to place"
-				src={moveImage}
+				src={moveImage.base64}
 			/>
 		</motion.div>
 	);

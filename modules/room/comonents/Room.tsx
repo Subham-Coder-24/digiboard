@@ -16,6 +16,7 @@ import ToolBar from "./toolbar/ToolBar";
 import Canvas from "./board/Canvas";
 import Chat from "./chat/Chat";
 import MoveImage from "./board/MoveImage";
+import SelectionBtns from "./board/SelectionBtns";
 
 const Room = () => {
 	const room = useRoom();
@@ -26,6 +27,7 @@ const Room = () => {
 			<div className="relative h-full w-full overflow-hidden">
 				<UserList />
 				<ToolBar />
+				<SelectionBtns />
 				<Canvas />
 				<MoveImage />
 				<MousePosition />

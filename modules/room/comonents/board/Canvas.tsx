@@ -19,26 +19,14 @@ import Background from "./Background";
 import { useRefs } from "../../hooks/useRefs";
 import { useMovesHandlers } from "../../hooks/useMovesHandlers";
 import { useCtx } from "../../hooks/useCtx";
+import { BsArrowsMove } from "react-icons/bs";
 
 const Canvas = () => {
-	const ctx = useCtx();
-	// const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
-	const [dragging, setDragging] = useState(false);
-	const [, setMovedMiniMap] = useState(false);
-	const { width, height } = useViewportSize();
-
-	const room = useRoom();
-
 	const { canvasRef, bgRef, undoRef, redoRef } = useRefs();
-
-	useKeyPressEvent("Control", (e) => {
-		if (e?.ctrlKey && !dragging) {
-			setDragging(true);
-		}
-	});
-
+	const [dragging, setDragging] = useState(true);
+	const { width, height } = useViewportSize();
 	const { x, y } = useBoardPosition();
-	//why
+	const ctx = useCtx();
 	const {
 		handleDraw,
 		handleEndDrawing,
@@ -48,21 +36,23 @@ const Canvas = () => {
 	} = useDraw(dragging);
 	useSocketDraw(drawing);
 	const { handleUndo, handleRedo } = useMovesHandlers(clearOnYourMove);
-
 	useEffect(() => {
-		const handleKeyUp = (e: KeyboardEvent) => {
-			if (e.ctrlKey && dragging) {
-				setDragging(false);
-			}
+		setDragging(false);
+	}, []);
+	useEffect(() => {
+		const handleKey = (e: KeyboardEvent) => {
+			setDragging(e.ctrlKey);
 		};
 
-		window.addEventListener("keyup", handleKeyUp);
+		window.addEventListener("keyup", handleKey);
+		window.addEventListener("keydown", handleKey);
 		const undoBtn = undoRef.current;
 		const redoBtn = redoRef.current;
 		undoBtn?.addEventListener("click", handleUndo);
 		redoBtn?.addEventListener("click", handleRedo);
 		return () => {
-			window.removeEventListener("keyup", handleKeyUp);
+			window.removeEventListener("keyup", handleKey);
+			window.removeEventListener("keydown", handleKey);
 			undoBtn?.removeEventListener("click", handleUndo);
 			redoBtn?.removeEventListener("click", handleRedo);
 		};
@@ -114,10 +104,15 @@ const Canvas = () => {
 				}
 			/>
 			<Background bgRef={bgRef} />
-			<MiniMap
-				dragging={dragging}
-				setMovedMinimap={setMovedMiniMap} // Fixed syntax
-			/>
+			<MiniMap dragging={dragging} />
+			<button
+				className={`absolute bottom-14 right-5 z-10 rounded-xl md:bottom-5 ${
+					dragging ? "bg-green-500" : "bg-zinc-300 text-black"
+				} p-3 text-lg text-white`}
+				onClick={() => setDragging((prev) => !prev)}
+			>
+				<BsArrowsMove />
+			</button>
 		</div>
 	);
 };
