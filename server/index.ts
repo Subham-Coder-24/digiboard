@@ -1,167 +1,171 @@
 import { createServer } from "http";
-import express from "express";
-import next from "next";
-import { Server } from "socket.io";
 
 import {} from "@/common/types/global";
-import { socket } from "@/common/lib/socket";
-import { uuid } from "uuidv4";
+
+import express from "express";
+import next, { NextApiHandler } from "next";
+import { Server } from "socket.io";
+import { v4 } from "uuid";
 
 const port = parseInt(process.env.PORT || "3000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
-const nextHandler = nextApp.getRequestHandler();
+const nextHandler: NextApiHandler = nextApp.getRequestHandler();
 
 nextApp.prepare().then(async () => {
-	const app = express();
-	const server = createServer(app);
-	const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
+  const app = express();
+  const server = createServer(app);
 
-	app.get("/health", async (_, res) => {
-		res.send("Healthy");
-	});
+  const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
-	const rooms = new Map<string, Room>();
-	// rooms.set("global", new Map());
+  app.get("/health", async (_, res) => {
+    res.send("Healthy");
+  });
 
-	const addMove = (roomId: string, socketId: string, move: Move) => {
-		const room = rooms.get(roomId);
+  const rooms = new Map<string, Room>();
 
-		if (!room) return; //check
+  const addMove = (roomId: string, socketId: string, move: Move) => {
+    const room = rooms.get(roomId)!;
 
-		if (!room.users.has(socketId)) {
-			room.usersMoves.set(socketId, [move]);
-		}
-		room.usersMoves.get(socketId)!.push(move);
-	};
+    if (!room.users.has(socketId)) {
+      room.usersMoves.set(socketId, [move]);
+    }
 
-	const undoMove = (roomId: string, socketId: string) => {
-		const room = rooms.get(roomId)!;
-		room.usersMoves.get(socketId)!.pop();
-	};
+    room.usersMoves.get(socketId)!.push(move);
+  };
 
-	io.on("connection", (socket) => {
-		console.log(` User connected: ${socket.id}`);
-		const getRoomId = () => {
-			const joinedRoom = [...socket.rooms].find(
-				(room) => room !== socket.id
-			);
+  const undoMove = (roomId: string, socketId: string) => {
+    const room = rooms.get(roomId)!;
 
-			if (!joinedRoom) return socket.id;
+    room.usersMoves.get(socketId)!.pop();
+  };
 
-			return joinedRoom;
-		};
-		const leaveRoom = (roomId: string, socketId: string) => {
-			const room = rooms.get(roomId);
-			if (!room) {
-				return;
-			}
+  io.on("connection", (socket) => {
+    const getRoomId = () => {
+      const joinedRoom = [...socket.rooms].find((room) => room !== socket.id);
 
-			const userMoves = room.usersMoves.get(socketId) || [];
-			if (userMoves) room.drawed.push(...userMoves);
-			room.users.delete(socketId);
-			socket.leave(roomId);
-			console.log(`User ${socketId} left room ${roomId}`, room);
-		};
-		socket.on("create_room", (username) => {
-			let roomId: string;
-			do {
-				roomId = Math.random().toString(36).substring(2, 6);
-			} while (rooms.has(roomId));
+      if (!joinedRoom) return socket.id;
 
-			socket.join(roomId);
+      return joinedRoom;
+    };
 
-			// rooms.set(roomId, { users: new Map(), drawed: [] });
-			rooms.set(roomId, {
-				users: new Map([[socket.id, username]]),
-				drawed: [],
-				usersMoves: new Map([[socket.id, []]]),
-			});
+    const leaveRoom = (roomId: string, socketId: string) => {
+      const room = rooms.get(roomId);
+      if (!room) return;
 
-			io.to(socket.id).emit("created", roomId);
-		});
+      const userMoves = room.usersMoves.get(socketId);
 
-		socket.on("join_room", (roomId, username) => {
-			const room = rooms.get(roomId);
-			if (room && room.users.size < 12) {
-				socket.join(roomId);
+      if (userMoves) room.drawed.push(...userMoves);
+      room.users.delete(socketId);
 
-				room.users.set(socket.id, username);
-				room.usersMoves.set(socket.id, []);
+      socket.leave(roomId);
+    };
 
-				io.to(socket.id).emit("joined", roomId);
-			} else io.to(socket.id).emit("joined", "", true);
-		});
+    socket.on("create_room", (username) => {
+      let roomId: string;
+      do {
+        roomId = Math.random().toString(36).substring(2, 6);
+      } while (rooms.has(roomId));
 
-		socket.on("check_room", (roomId) => {
-			if (rooms.has(roomId)) socket.emit("room_exists", true);
-			else socket.emit("room_exists", false);
-		});
+      socket.join(roomId);
 
-		socket.on("joined_room", () => {
-			const roomId = getRoomId();
-			console.log("joined_room", roomId);
-			const room = rooms.get(roomId);
-			if (!room) return;
-			io.to(socket.id).emit(
-				"room",
-				room,
-				JSON.stringify([...room.usersMoves]),
-				JSON.stringify([...room.users])
-			);
-			socket.broadcast
-				.to(roomId)
-				.emit(
-					"new_user",
-					socket.id,
-					room.users.get(socket.id) || "Anonymous"
-				);
-		});
+      rooms.set(roomId, {
+        usersMoves: new Map([[socket.id, []]]),
+        drawed: [],
+        users: new Map([[socket.id, username]]),
+      });
 
-		socket.on("leave_room", () => {
-			const roomId = getRoomId();
-			leaveRoom(roomId, socket.id);
-			io.to(roomId).emit("user_disconnected", socket.id);
-		});
+      io.to(socket.id).emit("created", roomId);
+    });
 
-		// const allUser = io.sockets.adapter.rooms.get("global");
-		// if (allUser) io.to("global").emit("users_in_room", [...allUser]);
+    socket.on("check_room", (roomId) => {
+      if (rooms.has(roomId)) socket.emit("room_exists", true);
+      else socket.emit("room_exists", false);
+    });
 
-		socket.on("draw", (move) => {
-			const roomId = getRoomId();
-			const timestamp = Date.now();
-			move.id = uuid();
-			addMove(roomId, socket.id, { ...move, timestamp });
-			io.to(socket.id).emit("your_move", { ...move, timestamp });
-			socket.broadcast
-				.to(roomId)
-				.emit("user_draw", { ...move, timestamp }, socket.id);
-		});
-		socket.on("send_msg", (msg) => {
-			io.to(getRoomId()).emit("new_msg", socket.id, msg);
-		});
-		socket.on("undo", () => {
-			const roomId = getRoomId();
-			undoMove(roomId, socket.id);
-			socket.broadcast.to(roomId).emit("user_undo", socket.id);
-		});
+    socket.on("join_room", (roomId, username) => {
+      const room = rooms.get(roomId);
 
-		socket.on("mouse_move", (x, y) => {
-			socket.broadcast
-				.to(getRoomId())
-				.emit("mouse_moved", x, y, socket.id);
-		});
-		socket.on("disconnecting", () => {
-			leaveRoom(getRoomId(), socket.id);
-			io.to(getRoomId()).emit("user_disconnected", socket.id);
-			console.log("disconnected from server");
-		});
-	});
+      if (room && room.users.size < 12) {
+        socket.join(roomId);
 
-	app.all("*", (req: any, res: any) => nextHandler(req, res));
+        room.users.set(socket.id, username);
+        room.usersMoves.set(socket.id, []);
 
-	server.listen(port, () => {
-		// eslint-disable-next-line no-console
-		console.log(`> Ready on http://localhost:${port}`);
-	});
+        io.to(socket.id).emit("joined", roomId);
+      } else io.to(socket.id).emit("joined", "", true);
+    });
+
+    socket.on("joined_room", () => {
+      const roomId = getRoomId();
+
+      const room = rooms.get(roomId);
+      if (!room) return;
+
+      io.to(socket.id).emit(
+        "room",
+        room,
+        JSON.stringify([...room.usersMoves]),
+        JSON.stringify([...room.users])
+      );
+
+      socket.broadcast
+        .to(roomId)
+        .emit("new_user", socket.id, room.users.get(socket.id) || "Anonymous");
+    });
+
+    socket.on("leave_room", () => {
+      const roomId = getRoomId();
+      leaveRoom(roomId, socket.id);
+
+      io.to(roomId).emit("user_disconnected", socket.id);
+    });
+
+    socket.on("draw", (move) => {
+      const roomId = getRoomId();
+
+      const timestamp = Date.now();
+
+      // eslint-disable-next-line no-param-reassign
+      move.id = v4();
+
+      addMove(roomId, socket.id, { ...move, timestamp });
+
+      io.to(socket.id).emit("your_move", { ...move, timestamp });
+
+      socket.broadcast
+        .to(roomId)
+        .emit("user_draw", { ...move, timestamp }, socket.id);
+    });
+
+    socket.on("undo", () => {
+      const roomId = getRoomId();
+
+      undoMove(roomId, socket.id);
+
+      socket.broadcast.to(roomId).emit("user_undo", socket.id);
+    });
+
+    socket.on("mouse_move", (x, y) => {
+      socket.broadcast.to(getRoomId()).emit("mouse_moved", x, y, socket.id);
+    });
+
+    socket.on("send_msg", (msg) => {
+      io.to(getRoomId()).emit("new_msg", socket.id, msg);
+    });
+
+    socket.on("disconnecting", () => {
+      const roomId = getRoomId();
+      leaveRoom(roomId, socket.id);
+
+      io.to(roomId).emit("user_disconnected", socket.id);
+    });
+  });
+
+  app.all("*", (req: any, res: any) => nextHandler(req, res));
+
+  server.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`> Ready on http://localhost:${port}`);
+  });
 });

@@ -5,21 +5,24 @@ import { FiCopy } from "react-icons/fi";
 import { useOptionsValue } from "@/common/recoil/options";
 
 import { useRefs } from "../../hooks/useRefs";
+import { useBoardPosition } from "../../hooks/useBoardPosition";
 
 const SelectionBtns = () => {
 	const { selection } = useOptionsValue();
 	const { selectionRefs } = useRefs();
-
+	const { x, y } = useBoardPosition();
 	let top;
 	let left;
 
+	const { x: boardX, y: boardY } = useBoardPosition(); // MotionValues
+
 	if (selection) {
 		const { x, y, width, height } = selection;
-		top = Math.min(y, y + height) - 40;
-		left = Math.min(x, x + width);
+		top = Math.min(y, y + height) + boardY.get() - 40;
+		left = Math.min(x, x + width) + boardX.get();
 	} else {
-		left = -40;
 		top = -40;
+		left = -40;
 	}
 
 	return (

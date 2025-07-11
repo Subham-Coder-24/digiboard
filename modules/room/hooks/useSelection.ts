@@ -178,6 +178,7 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const handleCopy = async () => {
 		const blob = await makeBlob(true);
+		console.log("handleCopy");
 
 		if (blob)
 			navigator.clipboard
@@ -196,8 +197,9 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
 
 	useEffect(() => {
 		const handleSelection = async (e: KeyboardEvent) => {
-			if (e.key === "c" && e.ctrlKey) handleCopy();
-			if (e.key === "Delete" && selection) createDeleteMove();
+			if (e.key === "c" && (e.ctrlKey || e.metaKey)) handleCopy();
+			if ((e.key === "Delete" || e.key === "Backspace") && selection)
+				createDeleteMove();
 		};
 
 		document.addEventListener("keydown", handleSelection);

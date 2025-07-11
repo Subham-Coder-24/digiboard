@@ -1,6 +1,9 @@
-import Room from "@/modules/room/comonents/Room";
+import type { NextPage } from "next";
 
-const RoomPage = () => {
-	return <Room />;
+import Room from "@/modules/room/components/Room";
+
+const RoomPage: NextPage = () => {
+  return <Room />;
 };
+
 export default RoomPage;

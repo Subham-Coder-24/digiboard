@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { HexColorPicker, RgbaColorPicker } from "react-colorful";
+import { RgbaColorPicker } from "react-colorful";
 import { BsPaletteFill } from "react-icons/bs";
 import { useClickAway } from "react-use";
 
+import { useOptions } from "@/common/recoil/options/options.hooks";
+
 import { EntryAnimation } from "../../animations/Entry.animations";
-import { useOptions } from "@/common/recoil/options";
-import { getStringFromRgba } from "@/common/lib/rgba";
 
 const ColorPicker = () => {
 	const [options, setOptions] = useOptions();
@@ -30,23 +30,26 @@ const ColorPicker = () => {
 			<AnimatePresence>
 				{opened && (
 					<motion.div
-						className="absolute top-0 left-14"
+						className="absolute left-10 mt-24 sm:left-14"
 						variants={EntryAnimation}
 						initial="from"
 						animate="to"
 						exit="from"
 					>
-						<h2 className="ml-3 font-semibold text-black">
+						<h2 className="ml-3 font-semibold text-black dark:text-white">
 							Line color
 						</h2>
 						<RgbaColorPicker
 							color={options.lineColor}
 							onChange={(e) => {
-								setOptions({ ...options, lineColor: e });
+								setOptions({
+									...options,
+									lineColor: e,
+								});
 							}}
 							className="mb-5"
 						/>
-						<h2 className="ml-3 font-semibold text-black">
+						<h2 className="ml-3 font-semibold text-black dark:text-white">
 							Fill color
 						</h2>
 						<RgbaColorPicker

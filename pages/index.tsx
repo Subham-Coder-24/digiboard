@@ -1,6 +1,9 @@
-"use client";
+import type { NextPage } from "next";
+
 import Home from "@/modules/home/components/Home";
 
-export default function HomePage() {
-	return <Home />;
-}
+const HomePage: NextPage = () => {
+  return <Home />;
+};
+
+export default HomePage;

@@ -1,8 +1,12 @@
 /* eslint-disable import/no-cycle */
-"use client";
 import { optionsAtom } from "./options.atom";
-import { useOptions, useOptionsValue, useSetOptions } from "./options.hooks";
+import {
+  useOptions,
+  useSetOptions,
+  useOptionsValue,
+  useSetSelection,
+} from "./options.hooks";
 
 export default optionsAtom;
 
-export { useOptions, useOptionsValue, useSetOptions };
+export { useOptions, useOptionsValue, useSetOptions, useSetSelection };
