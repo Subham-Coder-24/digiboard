@@ -56,13 +56,30 @@ const Home = () => {
     e.preventDefault();
     if (roomId) socket.emit("join_room", roomId, username);
   };
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkScreenSize(); // initial check
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+
 
   const styles = {
     container: {
       display: 'flex',
+      flexDirection: (isMobile ? 'column' : 'row') as React.CSSProperties['flexDirection'],
       minHeight: '100vh',
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     },
+
     
     // Left Side - Branding
     leftSide: {
