@@ -290,6 +290,39 @@ const Home = () => {
       textTransform: 'uppercase' as const,
       letterSpacing: '0.1em',
     },
+     labelIcon: {
+        marginRight: '10px',
+    },
+     inputHelper: {
+      fontSize: '0.75rem',
+      color: '#6c757d',
+      marginTop: '0.5rem',
+      marginLeft: '0.25rem',
+    },
+      primaryButton: {
+      background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+      color: '#ffffff',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    },
+    buttonIcon:{
+      marginRight: '10px',
+    },
+     formFooter: {
+      marginTop: '1rem',
+      textAlign: 'center' as const,
+    },
+    footerText: {
+      fontSize: '0.8rem',
+      color: '#6c757d',
+      // lineHeight: 1.4,
+      margin: 0,
+    },
+    footerLink: {
+      color: '#000000',
+      textDecoration: 'none',
+      fontWeight: 500,
+    },
+    
     form: {
       width: '100%',
     },
@@ -436,82 +469,76 @@ const Home = () => {
       {/* Right Side - Forms */}
       <div style={styles.rightSide}>
         <div style={styles.formContainer}>
-          <h2 style={styles.formTitle}>Get Started</h2>
+          <h2 style={styles.formTitle}>Welcome to CoSketch</h2>
+
           <p style={styles.formSubtitle}>
             Join an existing room or create a new collaborative space
           </p>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Your Name</label>
-            <input
-              style={styles.input}
-              placeholder="Enter your name..."
-              value={username}
-              onChange={(e) => setUsername(e.target.value.slice(0, 15))}
-              onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e9ecef';
-                e.target.style.background = '#f8f9fa';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-          </div>
-
-          <form style={styles.form} onSubmit={handleJoinRoom}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Room ID</label>
+           <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <span style={styles.labelIcon}>👤</span>
+                Display Name
+              </label>
               <input
                 style={styles.input}
-                placeholder="Enter room ID to join..."
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
+                placeholder="Enter your name..."
+                value={username}
+                onChange={(e) => setUsername(e.target.value.slice(0, 15))}
                 onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
                 onBlur={(e) => {
                   e.target.style.borderColor = '#e9ecef';
-                  e.target.style.background = '#f8f9fa';
+                  e.target.style.background = '#ffffff';
                   e.target.style.boxShadow = 'none';
                 }}
               />
+              <div style={styles.inputHelper}>
+                {username.length}/15 characters
+              </div>
             </div>
+
+          <form style={styles.form} onSubmit={handleJoinRoom}>
+             <div style={styles.inputGroup}>
+                <label style={styles.label}>
+                  <span style={styles.labelIcon}>🔑</span>
+                  Room Code
+                </label>
+                <input
+                  style={styles.input}
+                  placeholder="Enter 6-digit room code..."
+                  value={roomId}
+                  onChange={(e) => setRoomId(e.target.value)}
+                  onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e9ecef';
+                    e.target.style.background = '#ffffff';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <div style={styles.inputHelper}>
+                  Get the code from your team leader
+                </div>
+              </div>
             <button 
               type="submit" 
               style={styles.button}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
             >
-              Join Room
+             <span style={styles.buttonIcon}>🚀</span>
+                Join Collaboration
             </button>
           </form>
 
-          <div style={styles.divider}>
-            <div style={styles.dividerLine}></div>
-            <span style={styles.dividerText}>or</span>
-            <div style={styles.dividerLine}></div>
-          </div>
+            <div style={styles.divider}>
+              <div style={styles.dividerLine}></div>
+              <span style={styles.dividerText}>New to CoSketch?</span>
+              <div style={styles.dividerLine}></div>
+            </div>
 
           <button 
-            style={{...styles.button, ...styles.buttonSecondary}}
+            style={styles.button}
             onClick={handleCreateRoom}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#000000';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#000000';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
           >
-            Create New Room
+             <span style={styles.buttonIcon}>✨</span>
+              Start New Room
           </button>
         </div>
         
